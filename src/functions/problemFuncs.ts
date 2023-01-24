@@ -74,11 +74,70 @@ export const genArithmeticProblem = (params: ArithmeticParams): MathProblem => {
   };
 };
 
-// export const genAdditionProblem = (): MathProblem => {
+export const genAdditionProblem = (
+  min: number,
+  max: number,
+  givenExpression?: MathProblem
+): MathProblem => {
+  const operands = [];
+  if (givenExpression) operands.push(givenExpression.simple);
+  while (operands.length < 2)
+    operands.push(randomIntFromInterval(min, max).toString());
 
-// };
+  const solution = givenExpression
+    ? givenExpression.solution + Number.parseInt(operands[1])
+    : Number.parseInt(operands[0]) + Number.parseInt(operands[1]);
 
-// export const genSubtractionProblem = (): MathProblem => {};
+  const simpleStringFirstHalf = givenExpression
+    ? `(${givenExpression.simple})`
+    : operands[0];
+  const simpleStringSecondHalf =
+    operands[1][0] === '-' ? `(${operands[1]})` : operands[1];
+
+  const simple = `${simpleStringFirstHalf}+${simpleStringSecondHalf}`;
+
+  return {
+    simple: simple,
+    laTex: math.parse(simple).toTex(),
+    solution: solution,
+    operands: operands,
+  };
+};
+
+export const genSubtractionProblem = (
+  min: number,
+  max: number,
+  nonNegativeSolutionOnly: boolean,
+  givenExpression?: MathProblem
+): MathProblem => {
+  const operands = [];
+  // determining the first operand reduces randomness but is more performant
+  givenExpression
+    ? operands.push(givenExpression.solution)
+    : operands.push(randomIntFromInterval(min, max));
+
+  nonNegativeSolutionOnly
+    ? operands.push(randomIntFromInterval(min, operands[0]))
+    : operands.push(randomIntFromInterval(min, max));
+
+  let solution = operands[0] - operands[1];
+
+  const simpleStringFirstHalf = givenExpression
+    ? `(${givenExpression.simple})`
+    : operands[0];
+  const simpleStringSecondHalf =
+    operands[1] < 0 ? `(${operands[1]})` : operands[1];
+  const simple = `${simpleStringFirstHalf}-${simpleStringSecondHalf}`;
+
+  if (givenExpression) operands[0] = givenExpression.simple;
+
+  return {
+    simple: simple,
+    laTex: math.parse(simple).toTex(),
+    solution: solution,
+    operands: [operands[0].toString(), operands[1].toString()],
+  };
+};
 
 export const genMultiplicationProblem = (
   min: number,
@@ -86,23 +145,26 @@ export const genMultiplicationProblem = (
   givenExpression?: MathProblem
 ): MathProblem => {
   let operands = [];
-  if (givenExpression) operands.push(givenExpression.simple);
-  while (operands.length < 2)
-    operands.push(randomIntFromInterval(min, max).toString());
+  givenExpression
+    ? operands.push(givenExpression.solution, randomIntFromInterval(min, max))
+    : operands.push(
+        randomIntFromInterval(min, max),
+        randomIntFromInterval(min, max)
+      );
 
-  let solution = givenExpression
-    ? givenExpression.solution * Number.parseInt(operands[1])
-    : Number.parseInt(operands[0]) * Number.parseInt(operands[1]);
+  const solution = operands[1] * operands[0];
 
-  let simple = givenExpression
-    ? `${givenExpression.simple}*${operands[1]}`
+  if (givenExpression) operands[0] = givenExpression.simple;
+
+  const simple = givenExpression
+    ? `(${operands[0]})*${operands[1]}`
     : `${operands[0]}*${operands[1]}`;
 
   return {
     simple: simple,
     laTex: math.parse(simple).toTex(),
     solution: solution,
-    operands: operands,
+    operands: [operands[0].toString(), operands[1].toString()],
   };
 };
 
