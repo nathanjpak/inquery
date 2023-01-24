@@ -47,12 +47,20 @@ describe('getRandomFactor', () => {
       max: -3,
       negativesAllowed: true,
     });
+    const resultD = getRandomFactor(100, {min: 0, negativesAllowed: true});
+    const resultE = getRandomFactor(30, {max: -30, negativesAllowed: true});
+    const resultF = getRandomFactor(-10, {negativesAllowed: true});
 
     expect(300 % resultA).toEqual(0);
     expect(200 % resultB).toEqual(0);
     expect(9 % resultC).toEqual(0);
+    expect(100 % resultD).toEqual(0);
+    expect(30 % resultE).toEqual(0);
+    expect(-10 % resultF).toEqual(0);
 
     expect(resultB).toBeLessThan(0);
     expect(resultC).toEqual(-3);
+    expect(resultD).toBeGreaterThan(0);
+    expect(resultE).toEqual(-30);
   });
 });
