@@ -130,7 +130,7 @@ describe('genDiv function', () => {
     expect(typeof result.simple).toBe('string');
     expect(result.simple.indexOf('/')).toEqual(result.simple.length - 2);
     expect(
-      Number.parseInt(result.operands[1]) / Number.parseInt(result.operands[0])
+      Number.parseInt(result.operands[0]) / Number.parseInt(result.operands[1])
     ).toEqual(result.solution);
   });
 
@@ -139,7 +139,7 @@ describe('genDiv function', () => {
 
     expect(result.simple.indexOf('/')).toEqual(result.simple.length - 3);
     expect(
-      Number.parseInt(result.operands[1]) / Number.parseInt(result.operands[0])
+      Number.parseInt(result.operands[0]) / Number.parseInt(result.operands[1])
     ).toEqual(result.solution);
   });
 
@@ -155,7 +155,7 @@ describe('genDiv function', () => {
 
     expect(result.simple.substring(0, 7)).toEqual('(12-4)/');
     expect(result.solution).toBeLessThanOrEqual(8);
-    expect(Number.parseInt(result.operands[0])).toBeLessThanOrEqual(8);
-    expect(8 / Number.parseInt(result.operands[0])).toEqual(result.solution);
+    expect(Number.parseInt(result.operands[1])).toBeLessThanOrEqual(8);
+    expect(8 / Number.parseInt(result.operands[1])).toEqual(result.solution);
   });
 });

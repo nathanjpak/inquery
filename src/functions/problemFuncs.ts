@@ -178,7 +178,9 @@ export const genDivisionProblem = (
 ): MathProblem => {
   if (givenExpression) {
     const dividend = givenExpression.solution,
-      divisor = getRandomFactor(dividend),
+      divisor = integerOnly
+        ? getRandomFactor(dividend)
+        : randomIntFromInterval(min, max, true),
       solution = dividend / divisor;
 
     const simple = `(${givenExpression.simple})/${divisor}`;
@@ -187,32 +189,19 @@ export const genDivisionProblem = (
       simple: simple,
       laTex: math.parse(simple).toTex(),
       solution: solution,
-      operands: [divisor.toString(), givenExpression.simple],
+      operands: [givenExpression.simple, divisor.toString()],
     };
   }
 
-  if (integerOnly) {
-    const operands: number[] = [randomIntFromInterval(min, max)],
-      solution: number = randomIntFromInterval(min, max);
-
-    operands.push(solution * operands[0]);
-
-    let simple = `${operands[1]}/${operands[0]}`;
-
-    return {
-      simple: simple,
-      laTex: math.parse(simple).toTex(),
-      solution: solution,
-      operands: [operands[0].toString(), operands[1].toString()],
-    };
-  }
-
-  // TODO: if rationals are allowed
+  const operands: number[] = [randomIntFromInterval(min, max)],
+    solution: number = randomIntFromInterval(min, max);
+  operands.unshift(solution * operands[0]);
+  let simple = `${operands[0]}/${operands[1]}`;
   return {
-    laTex: 'ba',
-    simple: '',
-    solution: 2,
-    operands: ['2', '4'],
+    simple: simple,
+    laTex: math.parse(simple).toTex(),
+    solution: solution,
+    operands: [operands[0].toString(), operands[1].toString()],
   };
 };
 
