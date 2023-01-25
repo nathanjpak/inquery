@@ -45,8 +45,8 @@ const defaultOperations = [
   },
 ];
 
-// TODO: operands should become an array of numbers that grows with steps
-// TODO: use recursion to generate multistep problems
+// TODO: enable non-integer rational numbers in decimal or fraction form
+
 export const genArithmeticProblem = (
   params: ArithmeticParams,
   givenExpression?: MathProblem

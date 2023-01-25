@@ -184,4 +184,33 @@ describe('genArithProblems function', () => {
     expect(result.simple.match(regex)).toHaveProperty('length', 5);
     expect(result.operands.length).toEqual(6);
   });
+
+  it('should return an equation with only addition', () => {
+    const result = genArithmeticProblem({
+      positiveOnly: false,
+      integerOnly: true,
+      steps: 4,
+      operations: [
+        {
+          symbol: '+',
+          verb: 'add',
+        },
+      ],
+    });
+
+    const regex = /\+/g;
+
+    expect(result.simple.match(regex)).toHaveProperty('length', 4);
+    expect(result.operands.length).toEqual(5);
+  });
+
+  it('should return a proper equation if boolean paramenters are set to false', () => {
+    const result = genArithmeticProblem({
+      positiveOnly: false,
+      integerOnly: false,
+      steps: 2,
+    });
+
+    expect(result.operands.length).toEqual(3);
+  });
 });
