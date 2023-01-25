@@ -6,7 +6,7 @@ interface MathProblem {
   simple: string;
   laTex: string;
   solution: number;
-  operands: string[];
+  operands: number[];
   variables?: string[];
 }
 
@@ -45,33 +45,50 @@ const defaultOperations = [
   },
 ];
 
-// TODO: write out logic for other operations
+// TODO: operands should become an array of numbers that grows with steps
 // TODO: use recursion to generate multistep problems
-export const genArithmeticProblem = (params: ArithmeticParams): MathProblem => {
+export const genArithmeticProblem = (
+  params: ArithmeticParams,
+  givenExpression?: MathProblem
+): MathProblem => {
   let min = params.min || 1,
     max = params.max || 15,
-    // steps = params.steps || 1,
+    steps = params.steps || 1,
     operations = params.operations || defaultOperations;
   if (!params.positiveOnly && min > 0) min = -max;
 
   // set operation randomly
   const operation = operations[~~(Math.random() * operations.length)];
 
-  // if division, then run separate division generator function
-  if (operation.symbol === '/')
-    return genDivisionProblem(min, max, params.integerOnly);
-
-  const operands: number[] = [
-    randomIntFromInterval(max, min),
-    randomIntFromInterval(max, min),
-  ];
-
-  return {
-    laTex: 'ba',
-    simple: 'ba',
-    solution: 2,
-    operands: [operands[0].toString(), operands[1].toString()],
+  const getProblem = (operationSymbol: string) => {
+    switch (operationSymbol) {
+      case '+':
+        return genAdditionProblem(min, max, givenExpression);
+      case '-':
+        return genSubtractionProblem(
+          min,
+          max,
+          params.positiveOnly,
+          givenExpression
+        );
+      case '*':
+        return genMultiplicationProblem(min, max, givenExpression);
+      default:
+        return genDivisionProblem(
+          min,
+          max,
+          params.integerOnly,
+          givenExpression
+        );
+    }
   };
+
+  const problem = getProblem(operation.symbol);
+
+  if (steps > 1)
+    return genArithmeticProblem({...params, steps: steps - 1}, problem);
+
+  return problem;
 };
 
 export const genAdditionProblem = (
@@ -79,20 +96,21 @@ export const genAdditionProblem = (
   max: number,
   givenExpression?: MathProblem
 ): MathProblem => {
-  const operands = [];
-  if (givenExpression) operands.push(givenExpression.simple);
-  while (operands.length < 2)
-    operands.push(randomIntFromInterval(min, max).toString());
+  const operands = givenExpression
+    ? [...givenExpression.operands, randomIntFromInterval(min, max)]
+    : [randomIntFromInterval(min, max), randomIntFromInterval(min, max)];
 
   const solution = givenExpression
-    ? givenExpression.solution + Number.parseInt(operands[1])
-    : Number.parseInt(operands[0]) + Number.parseInt(operands[1]);
+    ? givenExpression.solution + operands[operands.length - 1]
+    : operands[0] + operands[1];
 
   const simpleStringFirstHalf = givenExpression
     ? `(${givenExpression.simple})`
-    : operands[0];
+    : operands[0].toString();
   const simpleStringSecondHalf =
-    operands[1][0] === '-' ? `(${operands[1]})` : operands[1];
+    operands[operands.length - 1] > 0
+      ? operands[1].toString()
+      : `(${operands[1]})`;
 
   const simple = `${simpleStringFirstHalf}+${simpleStringSecondHalf}`;
 
@@ -110,32 +128,33 @@ export const genSubtractionProblem = (
   nonNegativeSolutionOnly: boolean,
   givenExpression?: MathProblem
 ): MathProblem => {
-  const operands = [];
   // determining the first operand reduces randomness but is more performant
-  givenExpression
-    ? operands.push(givenExpression.solution)
-    : operands.push(randomIntFromInterval(min, max));
+  const operands = givenExpression
+    ? [...givenExpression.operands]
+    : [randomIntFromInterval(min, max)];
 
   nonNegativeSolutionOnly
-    ? operands.push(randomIntFromInterval(min, operands[0]))
+    ? operands.push(randomIntFromInterval(min, operands[operands.length - 1]))
     : operands.push(randomIntFromInterval(min, max));
 
-  let solution = operands[0] - operands[1];
+  let solution = givenExpression
+    ? givenExpression.solution - operands[operands.length - 1]
+    : operands[0] - operands[1];
 
   const simpleStringFirstHalf = givenExpression
     ? `(${givenExpression.simple})`
-    : operands[0];
+    : operands[0].toString();
   const simpleStringSecondHalf =
-    operands[1] < 0 ? `(${operands[1]})` : operands[1];
+    operands[operands.length - 1] < 0
+      ? `(${operands[operands.length - 1]})`
+      : operands[operands.length - 1].toString();
   const simple = `${simpleStringFirstHalf}-${simpleStringSecondHalf}`;
-
-  if (givenExpression) operands[0] = givenExpression.simple;
 
   return {
     simple: simple,
     laTex: math.parse(simple).toTex(),
     solution: solution,
-    operands: [operands[0].toString(), operands[1].toString()],
+    operands: operands,
   };
 };
 
@@ -144,31 +163,26 @@ export const genMultiplicationProblem = (
   max: number,
   givenExpression?: MathProblem
 ): MathProblem => {
-  let operands = [];
-  givenExpression
-    ? operands.push(givenExpression.solution, randomIntFromInterval(min, max))
-    : operands.push(
-        randomIntFromInterval(min, max),
-        randomIntFromInterval(min, max)
-      );
+  let operands = givenExpression
+    ? [...givenExpression.operands, randomIntFromInterval(min, max)]
+    : [randomIntFromInterval(min, max), randomIntFromInterval(min, max)];
 
-  const solution = operands[1] * operands[0];
-
-  if (givenExpression) operands[0] = givenExpression.simple;
+  const solution = givenExpression
+    ? givenExpression.solution * operands[operands.length - 1]
+    : operands[0] * operands[1];
 
   const simple = givenExpression
-    ? `(${operands[0]})*${operands[1]}`
+    ? `(${givenExpression.simple})*${operands[operands.length - 1]}`
     : `${operands[0]}*${operands[1]}`;
 
   return {
     simple: simple,
     laTex: math.parse(simple).toTex(),
     solution: solution,
-    operands: [operands[0].toString(), operands[1].toString()],
+    operands: operands,
   };
 };
 
-// TODO: switch operands order to [Dividend, Divisor]
 // TODO: enable non-integer rational numbers
 export const genDivisionProblem = (
   min: number,
@@ -189,7 +203,7 @@ export const genDivisionProblem = (
       simple: simple,
       laTex: math.parse(simple).toTex(),
       solution: solution,
-      operands: [givenExpression.simple, divisor.toString()],
+      operands: [...givenExpression.operands, divisor],
     };
   }
 
@@ -201,7 +215,7 @@ export const genDivisionProblem = (
     simple: simple,
     laTex: math.parse(simple).toTex(),
     solution: solution,
-    operands: [operands[0].toString(), operands[1].toString()],
+    operands: operands,
   };
 };
 
