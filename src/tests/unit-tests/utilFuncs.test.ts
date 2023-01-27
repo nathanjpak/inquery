@@ -92,9 +92,7 @@ describe('convertStringToLatex', () => {
     const resultB = convertStringToLatex('(1+2)/3+4/(5+6)');
 
     expect(resultA).toEqual('\\frac{1}{2}+\\frac{3}{4}');
-    expect(resultB).toEqual(
-      '\\frac{\\left(1+2\\right)}{3}+\\frac{4}{\\left(5+6\\right)}'
-    );
+    expect(resultB).toEqual('\\frac{1+2}{3}+\\frac{4}{5+6}');
   });
 
   it('should handle nested parentheses and fractions', () => {
@@ -102,10 +100,8 @@ describe('convertStringToLatex', () => {
     const resultB = convertStringToLatex('2/((1/2)+3)');
 
     expect(resultA).toEqual(
-      '\\frac{\\left(1+\\left(2+3\\right)\\right)}{\\left(\\left(4+5\\right)+6\\right)}'
+      '\\frac{1+\\left(2+3\\right)}{\\left(4+5\\right)+6}'
     );
-    expect(resultB).toEqual(
-      '\\frac{2}{\\left(\\left(\\frac{1}{2}\\right)+3\\right)}'
-    );
+    expect(resultB).toEqual('\\frac{2}{\\left(\\frac{1}{2}\\right)+3}');
   });
 });

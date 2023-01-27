@@ -76,7 +76,7 @@ export const randomIntFromInterval = (
   return Math.floor(Math.random() * (max - min + 1)) + min;
 };
 
-// TODO: implement fractions and square roots
+// TODO: implement square roots
 export const convertStringToLatex = (
   expression: string,
   preferFractions = true
@@ -92,7 +92,7 @@ export const convertStringToLatex = (
     delete keyMap['/'];
   }
 
-  const newStringCharacters = [];
+  const newStringCharacters: string[] = [];
   const fractionsToConvertIndices: number[] = [];
 
   for (let index = 0; index < expression.length; index++) {
@@ -109,9 +109,7 @@ export const convertStringToLatex = (
   while (fractionsToConvertIndices.length > 0) {
     // check left
     if (newStringCharacters[fractionsToConvertIndices[0] - 1] === '\\right)') {
-      newStringCharacters[fractionsToConvertIndices[0] - 1] = `${
-        newStringCharacters[fractionsToConvertIndices[0] - 1]
-      }}`;
+      newStringCharacters[fractionsToConvertIndices[0] - 1] = '}';
 
       const unclosedParenthesesStack = [')'];
       let currentIndex = fractionsToConvertIndices[0] - 2;
@@ -131,9 +129,7 @@ export const convertStringToLatex = (
         }
       }
 
-      newStringCharacters[
-        currentIndex
-      ] = `\\frac{${newStringCharacters[currentIndex]}`;
+      newStringCharacters[currentIndex] = '\\frac{';
     } else {
       newStringCharacters[fractionsToConvertIndices[0] - 1] = `\\frac{${
         newStringCharacters[fractionsToConvertIndices[0] - 1]
@@ -142,9 +138,7 @@ export const convertStringToLatex = (
 
     // check right
     if (newStringCharacters[fractionsToConvertIndices[0]] === '\\left(') {
-      newStringCharacters[fractionsToConvertIndices[0]] = `{${
-        newStringCharacters[fractionsToConvertIndices[0]]
-      }`;
+      newStringCharacters[fractionsToConvertIndices[0]] = '{';
 
       const unclosedParenthesesStack = ['('];
       let currentIndex = fractionsToConvertIndices[0] + 1;
@@ -167,9 +161,7 @@ export const convertStringToLatex = (
         }
       }
 
-      newStringCharacters[
-        currentIndex
-      ] = `${newStringCharacters[currentIndex]}}`;
+      newStringCharacters[currentIndex] = '}';
     } else {
       newStringCharacters[fractionsToConvertIndices[0]] = `{${
         newStringCharacters[fractionsToConvertIndices[0]]
