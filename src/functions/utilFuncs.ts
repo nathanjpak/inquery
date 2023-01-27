@@ -94,15 +94,24 @@ export const convertStringToLatex = (
 
   const newStringCharacters: string[] = [];
   const fractionsToConvertIndices: number[] = [];
+  const radicalsToConvertIndices: number[] = [];
 
   for (let index = 0; index < expression.length; index++) {
     if (keyMap[expression[index]] !== undefined) {
       newStringCharacters.push(keyMap[expression[index]]);
+      continue;
     } else if (expression[index] === '/') {
       fractionsToConvertIndices.push(newStringCharacters.length);
-    } else {
-      newStringCharacters.push(expression[index]);
+      continue;
+    } else if (expression[index] === 's') {
+      if (expression.slice(index, index + 4) === 'sqrt') {
+        radicalsToConvertIndices.push(newStringCharacters.length);
+        index += 3;
+        continue;
+      }
     }
+
+    newStringCharacters.push(expression[index]);
   }
 
   // CANNOT change number of indices or length of newStringCharacters
@@ -169,6 +178,35 @@ export const convertStringToLatex = (
     }
 
     fractionsToConvertIndices.shift();
+  }
+
+  while (radicalsToConvertIndices.length > 0) {
+    newStringCharacters[radicalsToConvertIndices[0]] = '\\sqrt{';
+
+    const unclosedParenthesesStack = ['('];
+    let currentIndex = radicalsToConvertIndices[0] + 1;
+
+    while (
+      unclosedParenthesesStack.length > 0 &&
+      currentIndex < newStringCharacters.length - 1
+    ) {
+      switch (newStringCharacters[currentIndex]) {
+        case '\\right)':
+          unclosedParenthesesStack.pop();
+          if (unclosedParenthesesStack.length > 0) currentIndex++;
+          break;
+        case '\\left(':
+          unclosedParenthesesStack.push('(');
+          currentIndex++;
+          break;
+        default:
+          currentIndex++;
+      }
+    }
+
+    newStringCharacters[currentIndex] = '}';
+
+    radicalsToConvertIndices.shift();
   }
 
   return newStringCharacters.join('');

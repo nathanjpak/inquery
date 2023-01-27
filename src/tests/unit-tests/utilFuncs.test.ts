@@ -104,4 +104,14 @@ describe('convertStringToLatex', () => {
     );
     expect(resultB).toEqual('\\frac{2}{\\left(\\frac{1}{2}\\right)+3}');
   });
+
+  it('should handle square roots', () => {
+    const resultA = convertStringToLatex('1+sqrt(2)');
+    const resultB = convertStringToLatex('sqrt(1+(x+3))');
+    const resultC = convertStringToLatex('sqrt(2/3)');
+
+    expect(resultA).toEqual('1+\\sqrt{2}');
+    expect(resultB).toEqual('\\sqrt{1+\\left(x+3\\right)}');
+    expect(resultC).toEqual('\\sqrt{\\frac{2}{3}}');
+  });
 });
