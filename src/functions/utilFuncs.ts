@@ -75,3 +75,109 @@ export const randomIntFromInterval = (
 
   return Math.floor(Math.random() * (max - min + 1)) + min;
 };
+
+// TODO: implement fractions and square roots
+export const convertStringToLatex = (
+  expression: string,
+  preferFractions = true
+): string => {
+  const keyMap: {[key: string]: string} = {
+    '*': '\\cdot',
+    '/': '\\div',
+    '(': '\\left(',
+    ')': '\\right)',
+  };
+
+  if (preferFractions) {
+    delete keyMap['/'];
+  }
+
+  const newStringCharacters = [];
+  const fractionsToConvertIndices: number[] = [];
+
+  for (let index = 0; index < expression.length; index++) {
+    if (keyMap[expression[index]] !== undefined) {
+      newStringCharacters.push(keyMap[expression[index]]);
+    } else if (expression[index] === '/') {
+      fractionsToConvertIndices.push(newStringCharacters.length);
+    } else {
+      newStringCharacters.push(expression[index]);
+    }
+  }
+
+  // CANNOT change number of indices or length of newStringCharacters
+  while (fractionsToConvertIndices.length > 0) {
+    // check left
+    if (newStringCharacters[fractionsToConvertIndices[0] - 1] === '\\right)') {
+      newStringCharacters[fractionsToConvertIndices[0] - 1] = `${
+        newStringCharacters[fractionsToConvertIndices[0] - 1]
+      }}`;
+
+      const unclosedParenthesesStack = [')'];
+      let currentIndex = fractionsToConvertIndices[0] - 2;
+
+      while (unclosedParenthesesStack.length > 0 && currentIndex > 0) {
+        switch (newStringCharacters[currentIndex]) {
+          case '\\left(':
+            unclosedParenthesesStack.pop();
+            if (unclosedParenthesesStack.length > 0) currentIndex--;
+            break;
+          case '\\right)':
+            unclosedParenthesesStack.push(')');
+            currentIndex--;
+            break;
+          default:
+            currentIndex--;
+        }
+      }
+
+      newStringCharacters[
+        currentIndex
+      ] = `\\frac{${newStringCharacters[currentIndex]}`;
+    } else {
+      newStringCharacters[fractionsToConvertIndices[0] - 1] = `\\frac{${
+        newStringCharacters[fractionsToConvertIndices[0] - 1]
+      }}`;
+    }
+
+    // check right
+    if (newStringCharacters[fractionsToConvertIndices[0]] === '\\left(') {
+      newStringCharacters[fractionsToConvertIndices[0]] = `{${
+        newStringCharacters[fractionsToConvertIndices[0]]
+      }`;
+
+      const unclosedParenthesesStack = ['('];
+      let currentIndex = fractionsToConvertIndices[0] + 1;
+
+      while (
+        unclosedParenthesesStack.length > 0 &&
+        currentIndex < newStringCharacters.length - 1
+      ) {
+        switch (newStringCharacters[currentIndex]) {
+          case '\\right)':
+            unclosedParenthesesStack.pop();
+            if (unclosedParenthesesStack.length > 0) currentIndex++;
+            break;
+          case '\\left(':
+            unclosedParenthesesStack.push('(');
+            currentIndex++;
+            break;
+          default:
+            currentIndex++;
+        }
+      }
+
+      newStringCharacters[
+        currentIndex
+      ] = `${newStringCharacters[currentIndex]}}`;
+    } else {
+      newStringCharacters[fractionsToConvertIndices[0]] = `{${
+        newStringCharacters[fractionsToConvertIndices[0]]
+      }}`;
+    }
+
+    fractionsToConvertIndices.shift();
+  }
+
+  return newStringCharacters.join('');
+};

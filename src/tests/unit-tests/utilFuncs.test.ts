@@ -1,4 +1,4 @@
-import {getRandomFactor} from '../../functions/utilFuncs';
+import {convertStringToLatex, getRandomFactor} from '../../functions/utilFuncs';
 
 describe('getRandomFactor', () => {
   it('should return a proper factor of a number', () => {
@@ -72,4 +72,40 @@ describe('getRandomFactor', () => {
   //   expect(resultD).toBeGreaterThan(0);
   //   expect(resultE).toEqual(-30);
   // });
+});
+
+describe('convertStringToLatex', () => {
+  it('should convert a basic expression', () => {
+    const result = convertStringToLatex('3*12/4', false);
+
+    expect(result).toEqual('3\\cdot12\\div4');
+  });
+
+  it('should convert an expression with parentheses', () => {
+    const result = convertStringToLatex('(2+3)/5', false);
+
+    expect(result).toEqual('\\left(2+3\\right)\\div5');
+  });
+
+  it('should convert an expression with fractions', () => {
+    const resultA = convertStringToLatex('1/2+3/4');
+    const resultB = convertStringToLatex('(1+2)/3+4/(5+6)');
+
+    expect(resultA).toEqual('\\frac{1}{2}+\\frac{3}{4}');
+    expect(resultB).toEqual(
+      '\\frac{\\left(1+2\\right)}{3}+\\frac{4}{\\left(5+6\\right)}'
+    );
+  });
+
+  it('should handle nested parentheses and fractions', () => {
+    const resultA = convertStringToLatex('(1+(2+3))/((4+5)+6)');
+    const resultB = convertStringToLatex('2/((1/2)+3)');
+
+    expect(resultA).toEqual(
+      '\\frac{\\left(1+\\left(2+3\\right)\\right)}{\\left(\\left(4+5\\right)+6\\right)}'
+    );
+    expect(resultB).toEqual(
+      '\\frac{2}{\\left(\\left(\\frac{1}{2}\\right)+3\\right)}'
+    );
+  });
 });
