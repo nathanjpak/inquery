@@ -1,5 +1,8 @@
-import * as math from 'mathjs';
-import {getRandomFactor, randomIntFromInterval} from './utilFuncs';
+import {
+  convertStringToLatex,
+  getRandomFactor,
+  randomIntFromInterval,
+} from './utilFuncs';
 
 // problem interfaces
 interface MathProblem {
@@ -116,7 +119,7 @@ export const genAdditionProblem = (
 
   return {
     simple: simple,
-    laTex: math.parse(simple).toTex(),
+    laTex: convertStringToLatex(simple),
     solution: solution,
     operands: operands,
   };
@@ -152,7 +155,7 @@ export const genSubtractionProblem = (
 
   return {
     simple: simple,
-    laTex: math.parse(simple).toTex(),
+    laTex: convertStringToLatex(simple),
     solution: solution,
     operands: operands,
   };
@@ -177,7 +180,7 @@ export const genMultiplicationProblem = (
 
   return {
     simple: simple,
-    laTex: math.parse(simple).toTex(),
+    laTex: convertStringToLatex(simple),
     solution: solution,
     operands: operands,
   };
@@ -201,7 +204,7 @@ export const genDivisionProblem = (
 
     return {
       simple: simple,
-      laTex: math.parse(simple).toTex(),
+      laTex: convertStringToLatex(simple),
       solution: solution,
       operands: [...givenExpression.operands, divisor],
     };
@@ -213,7 +216,7 @@ export const genDivisionProblem = (
   let simple = `${operands[0]}/${operands[1]}`;
   return {
     simple: simple,
-    laTex: math.parse(simple).toTex(),
+    laTex: convertStringToLatex(simple),
     solution: solution,
     operands: operands,
   };
