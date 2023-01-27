@@ -4,7 +4,7 @@ import {
   genAdditionProblem,
   genSubtractionProblem,
   genArithmeticProblem,
-} from '../../functions/problemFuncs';
+} from '../../functions/arithmeticFuncs';
 
 describe('genAdd function', () => {
   it('should return a proper equation', () => {

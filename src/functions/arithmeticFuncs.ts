@@ -218,5 +218,3 @@ export const genDivisionProblem = (
     operands: operands,
   };
 };
-
-export const getProblems = () => {};
