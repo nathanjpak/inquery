@@ -90,9 +90,13 @@ describe('convertStringToLatex', () => {
   it('should convert an expression with fractions', () => {
     const resultA = convertStringToLatex('1/2+3/4');
     const resultB = convertStringToLatex('(1+2)/3+4/(5+6)');
+    const resultC = convertStringToLatex('12/26');
+    const resultD = convertStringToLatex('100/900000+1/2');
 
     expect(resultA).toEqual('\\frac{1}{2}+\\frac{3}{4}');
     expect(resultB).toEqual('\\frac{1+2}{3}+\\frac{4}{5+6}');
+    expect(resultC).toEqual('\\frac{12}{26}');
+    expect(resultD).toEqual('\\frac{100}{900000}+\\frac{1}{2}');
   });
 
   it('should handle nested parentheses and fractions', () => {

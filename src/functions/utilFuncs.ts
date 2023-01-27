@@ -140,9 +140,19 @@ export const convertStringToLatex = (
 
       newStringCharacters[currentIndex] = '\\frac{';
     } else {
-      newStringCharacters[fractionsToConvertIndices[0] - 1] = `\\frac{${
+      let prevIndex = fractionsToConvertIndices[0] - 2;
+
+      while (prevIndex >= 0 && newStringCharacters[prevIndex].match(/[0-9]/)) {
+        prevIndex--;
+      }
+
+      newStringCharacters[fractionsToConvertIndices[0] - 1] = `${
         newStringCharacters[fractionsToConvertIndices[0] - 1]
       }}`;
+
+      newStringCharacters[prevIndex + 1] = `\\frac{${
+        newStringCharacters[prevIndex + 1]
+      }`;
     }
 
     // check right
@@ -172,8 +182,21 @@ export const convertStringToLatex = (
 
       newStringCharacters[currentIndex] = '}';
     } else {
+      let nextIndex = fractionsToConvertIndices[0] + 1;
+
+      while (
+        nextIndex < newStringCharacters.length &&
+        newStringCharacters[nextIndex].match(/[0-9]/)
+      ) {
+        nextIndex++;
+      }
+
       newStringCharacters[fractionsToConvertIndices[0]] = `{${
         newStringCharacters[fractionsToConvertIndices[0]]
+      }`;
+
+      newStringCharacters[nextIndex - 1] = `${
+        newStringCharacters[nextIndex - 1]
       }}`;
     }
 
