@@ -1,4 +1,8 @@
-import {convertStringToLatex, getRandomFactor} from '../../functions/utilFuncs';
+import {
+  convertStringToLatex,
+  getRandomFactor,
+  simplifyFraction,
+} from '../../functions/utilFuncs';
 
 describe('getRandomFactor', () => {
   it('should return a proper factor of a number', () => {
@@ -117,5 +121,21 @@ describe('convertStringToLatex', () => {
     expect(resultA).toEqual('1+\\sqrt{2}');
     expect(resultB).toEqual('\\sqrt{1+\\left(x+3\\right)}');
     expect(resultC).toEqual('\\sqrt{\\frac{2}{3}}');
+  });
+});
+
+describe('simplifyFraction', () => {
+  it('should simplify fractions with integer components', () => {
+    const one = simplifyFraction('11/11'),
+      simpleExample = simplifyFraction('3/27'),
+      wholeNumber = simplifyFraction('100/25'),
+      negDenominator = simplifyFraction('30/-50'),
+      bothNegative = simplifyFraction('-9/-5');
+
+    expect(one).toEqual('1');
+    expect(simpleExample).toEqual('1/9');
+    expect(wholeNumber).toEqual('4');
+    expect(negDenominator).toEqual('-3/5');
+    expect(bothNegative).toEqual('9/5');
   });
 });

@@ -234,3 +234,49 @@ export const convertStringToLatex = (
 
   return newStringCharacters.join('');
 };
+
+// TODO: finish
+// For now, it assumes integer components
+export const simplifyFraction = (fraction: string): string => {
+  const fractionComponents = fraction.split('/');
+  const numerator = parseInt(fractionComponents[0]);
+  const denominator = parseInt(fractionComponents[1]);
+
+  if (numerator === denominator) return '1';
+  if (numerator % denominator === 0)
+    return (numerator / denominator).toString();
+
+  const gcd = ((num1, num2) => {
+    const [low, high] = num1 < num2 ? [num1, num2] : [num2, num1];
+    const isEven: boolean = low % 2 === 0;
+    const max = Math.sqrt(low);
+    const increment = isEven ? 1 : 2;
+
+    const factors = [1],
+      complements = [low];
+
+    for (
+      let currentFactor = isEven ? 2 : 3;
+      currentFactor <= max;
+      currentFactor += increment
+    ) {
+      if (low % currentFactor !== 0) continue;
+      factors.push(currentFactor);
+      let complement = low / currentFactor;
+      if (complement !== currentFactor) complements.unshift(complement);
+    }
+
+    factors.push(...complements);
+
+    let factorIndex = factors.length - 1;
+    while (factorIndex > 0 && high % factors[factorIndex] !== 0) factorIndex--;
+
+    return factors[factorIndex];
+  })(Math.abs(numerator), Math.abs(denominator));
+
+  const sign = numerator * denominator < 0 ? '-' : '';
+
+  return `${sign}${(Math.abs(numerator) / gcd).toString()}/${(
+    Math.abs(denominator) / gcd
+  ).toString()}`;
+};
