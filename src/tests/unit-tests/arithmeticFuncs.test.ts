@@ -156,14 +156,18 @@ describe('genDiv function', () => {
 describe('genArithProblems function', () => {
   it('should return a proper equation with positiveOnly operands', () => {
     const resultA = genArithmeticProblem({
-      positiveOnly: true,
-      integerOnly: true,
+      operands: {
+        positiveOnly: true,
+        decimalPlaces: 0,
+      },
     });
     const resultB = genArithmeticProblem({
       min: 1,
       max: 30,
-      positiveOnly: true,
-      integerOnly: false,
+      operands: {
+        positiveOnly: true,
+        decimalPlaces: 0,
+      },
     });
 
     const regex = /\/|-|\*|\+/g;
@@ -174,8 +178,10 @@ describe('genArithProblems function', () => {
 
   it('should recursively return a proper equation when number of steps > 1', () => {
     const result = genArithmeticProblem({
-      positiveOnly: true,
-      integerOnly: true,
+      operands: {
+        positiveOnly: true,
+        decimalPlaces: 0,
+      },
       steps: 5,
     });
 
@@ -187,15 +193,12 @@ describe('genArithProblems function', () => {
 
   it('should return an equation with only addition', () => {
     const result = genArithmeticProblem({
-      positiveOnly: false,
-      integerOnly: true,
+      operands: {
+        positiveOnly: false,
+        decimalPlaces: 0,
+      },
       steps: 4,
-      operations: [
-        {
-          symbol: '+',
-          verb: 'add',
-        },
-      ],
+      operations: ['addition'],
     });
 
     const regex = /\+/g;
@@ -204,13 +207,23 @@ describe('genArithProblems function', () => {
     expect(result.operands.length).toEqual(5);
   });
 
-  it('should return a proper equation if boolean paramenters are set to false', () => {
+  it('should return a proper equation with rational numbers in decimal form', () => {
     const result = genArithmeticProblem({
-      positiveOnly: false,
-      integerOnly: false,
-      steps: 2,
+      operands: {
+        positiveOnly: false,
+        decimalPlaces: 3,
+      },
+      steps: 3,
+      operations: ['addition', 'subtraction', 'multiplication'],
     });
 
-    expect(result.operands.length).toEqual(3);
+    expect(result.operands[0].toString().split('.')[1]).toHaveProperty(
+      'length',
+      3
+    );
+    expect(result.solution.toString().split('.')[1]).toHaveProperty(
+      'length',
+      3
+    );
   });
 });

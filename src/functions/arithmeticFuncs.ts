@@ -4,48 +4,13 @@ import {
   randomIntFromInterval,
 } from './utilFuncs';
 
-// problem interfaces
-interface MathProblem {
-  simple: string;
-  laTex: string;
-  solution: number;
-  operands: number[];
-  variables?: string[];
-}
+import {ArithmeticParams, MathProblem, operation} from './Types';
 
-// param interaces
-interface ArithmeticParams {
-  min?: number;
-  max?: number;
-  steps?: number;
-  operations?: operation[];
-  positiveOnly: boolean;
-  integerOnly: boolean;
-}
-
-// misc interfaces
-interface operation {
-  symbol: string;
-  verb: string;
-}
-
-const defaultOperations = [
-  {
-    symbol: '+',
-    verb: 'add',
-  },
-  {
-    symbol: '-',
-    verb: 'minus',
-  },
-  {
-    symbol: '*',
-    verb: 'times',
-  },
-  {
-    symbol: '/',
-    verb: 'divided by',
-  },
+const defaultOperations: operation[] = [
+  'addition',
+  'subtraction',
+  'multiplication',
+  'division',
 ];
 
 // TODO: enable non-integer rational numbers in decimal or fraction form
@@ -57,36 +22,33 @@ export const genArithmeticProblem = (
   let min = params.min || 1,
     max = params.max || 15,
     steps = params.steps || 1,
-    operations = params.operations || defaultOperations;
-  if (!params.positiveOnly && min > 0) min = -max;
+    operations: operation[] = params.operations || defaultOperations,
+    positiveOnly = params.operands.positiveOnly,
+    decimalPlaces = params.operands.decimalPlaces;
+  if (!positiveOnly && min > 0) min = -max;
 
   // set operation randomly
   const operation = operations[~~(Math.random() * operations.length)];
 
-  const getProblem = (operationSymbol: string) => {
-    switch (operationSymbol) {
-      case '+':
+  const getProblem = (operation: operation) => {
+    switch (operation) {
+      case 'addition':
         return genAdditionProblem(min, max, givenExpression);
-      case '-':
-        return genSubtractionProblem(
-          min,
-          max,
-          params.positiveOnly,
-          givenExpression
-        );
-      case '*':
+      case 'subtraction':
+        return genSubtractionProblem(min, max, positiveOnly, givenExpression);
+      case 'multiplication':
         return genMultiplicationProblem(min, max, givenExpression);
       default:
         return genDivisionProblem(
           min,
           max,
-          params.integerOnly,
+          decimalPlaces === 0,
           givenExpression
         );
     }
   };
 
-  const problem = getProblem(operation.symbol);
+  const problem = getProblem(operation);
 
   if (steps > 1)
     return genArithmeticProblem({...params, steps: steps - 1}, problem);
@@ -190,7 +152,7 @@ export const genMultiplicationProblem = (
 export const genDivisionProblem = (
   min: number,
   max: number,
-  integerOnly: boolean,
+  integerOnly: boolean = true,
   givenExpression?: MathProblem
 ): MathProblem => {
   if (givenExpression) {

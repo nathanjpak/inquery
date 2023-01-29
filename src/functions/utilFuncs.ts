@@ -235,7 +235,7 @@ export const convertStringToLatex = (
   return newStringCharacters.join('');
 };
 
-// TODO: finish
+// TODO: implement floating decimal components?
 // For now, it assumes integer components
 export const simplifyFraction = (fraction: string): string => {
   const fractionComponents = fraction.split('/');
