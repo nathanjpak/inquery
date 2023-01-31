@@ -8,7 +8,7 @@ import {
 
 describe('genAdd function', () => {
   it('should return a proper equation', () => {
-    const result = genAdditionProblem(0, 20);
+    const result = genAdditionProblem(0, 20, 0);
 
     expect(typeof result.simple).toBe('string');
     expect(result.simple.indexOf('+')).toEqual(
@@ -18,7 +18,7 @@ describe('genAdd function', () => {
   });
 
   it('should return an equation with parentheses if the second operand is negative', () => {
-    const result = genAdditionProblem(-20, -1);
+    const result = genAdditionProblem(-20, -1, 0);
 
     expect(result.simple[0]).toEqual('-');
     expect(result.simple[result.simple.length - 1]).toEqual(')');
@@ -32,18 +32,27 @@ describe('genAdd function', () => {
       operands: [12, 4],
     };
 
-    const result = genAdditionProblem(-99, 99, givenExpression);
+    const result = genAdditionProblem(-99, 99, 0, givenExpression);
 
     expect(result.simple.substring(0, 7)).toEqual('(12-4)+');
     expect(8 + result.operands[2]).toEqual(result.solution);
     expect(result.operands.length).toEqual(3);
     expect(result.operands[0] === 12);
   });
+
+  it('should return a proper equation with floats', () => {
+    const result = genAdditionProblem(-10, 10, 2);
+
+    expect(result.operands[0].toString().split('.')[1]).toHaveProperty(
+      'length',
+      2
+    );
+  });
 });
 
 describe('genSub function', () => {
   it('should return a proper equation', () => {
-    const result = genSubtractionProblem(0, 20, false);
+    const result = genSubtractionProblem(0, 20, false, 0);
 
     expect(typeof result.simple).toBe('string');
     expect(result.simple.indexOf('-')).toEqual(
@@ -53,14 +62,14 @@ describe('genSub function', () => {
   });
 
   it('should return a proper equation with a nonNegativeOnly solution', () => {
-    const result = genSubtractionProblem(0, 20, true);
+    const result = genSubtractionProblem(0, 20, true, 0);
 
     expect(result.solution).toBeGreaterThanOrEqual(0);
     expect(result.operands[0] - result.operands[1]).toEqual(result.solution);
   });
 
   it('should return an equation with parentheses if the second operand is negative', () => {
-    const result = genSubtractionProblem(-20, -1, false);
+    const result = genSubtractionProblem(-20, -1, false, 0);
 
     expect(result.simple[result.simple.length - 1]).toEqual(')');
     expect(result.operands[0] - result.operands[1]).toEqual(result.solution);
@@ -74,18 +83,27 @@ describe('genSub function', () => {
       operands: [12, 4],
     };
 
-    let result = genSubtractionProblem(-20, 20, false, givenExpression);
+    let result = genSubtractionProblem(-20, 20, false, 0, givenExpression);
 
     expect(result.simple.substring(0, 7)).toEqual('(12-4)-');
     expect(8 - result.operands[2]).toEqual(result.solution);
     expect(result.operands.length).toEqual(3);
     expect(result.operands[0] === 12);
   });
+
+  it('should return a proper equation with floats', () => {
+    const result = genSubtractionProblem(-20, 20, false, 3);
+
+    expect(result.operands[0].toString().split('.')[1]).toHaveProperty(
+      'length',
+      3
+    );
+  });
 });
 
 describe('genMult function', () => {
   it('should return a proper equation', () => {
-    const result = genMultiplicationProblem(1, 9);
+    const result = genMultiplicationProblem(1, 9, 0);
 
     expect(typeof result.simple).toBe('string');
     expect(result.simple.indexOf('*')).toEqual(1);
@@ -93,7 +111,7 @@ describe('genMult function', () => {
   });
 
   it('should return a proper equation with three digits', () => {
-    const result = genMultiplicationProblem(100, 999);
+    const result = genMultiplicationProblem(100, 999, 0);
 
     expect(result.simple.indexOf('*')).toEqual(3);
     expect(result.operands[0] * result.operands[1]).toEqual(result.solution);
@@ -107,7 +125,7 @@ describe('genMult function', () => {
       operands: [12, 4],
     };
 
-    const result = genMultiplicationProblem(1, 99, givenExpression);
+    const result = genMultiplicationProblem(1, 99, 0, givenExpression);
 
     expect(result.simple.substring(0, 7)).toEqual('(12-4)*');
     expect(result.operands[2] * givenExpression.solution).toEqual(
@@ -115,6 +133,15 @@ describe('genMult function', () => {
     );
     expect(result.operands.length).toEqual(3);
     expect(result.operands[0] === 12);
+  });
+
+  it('should return a proper equation with a given expression', () => {
+    const result = genMultiplicationProblem(-10, 10, 3);
+
+    expect(result.operands[0].toString().split('.')[1]).toHaveProperty(
+      'length',
+      3
+    );
   });
 });
 

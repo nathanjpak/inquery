@@ -1,6 +1,7 @@
 import {
   convertStringToLatex,
   getRandomFactor,
+  randomFloatFromInterval,
   randomIntFromInterval,
 } from './utilFuncs';
 
@@ -33,11 +34,22 @@ export const genArithmeticProblem = (
   const getProblem = (operation: operation) => {
     switch (operation) {
       case 'addition':
-        return genAdditionProblem(min, max, givenExpression);
+        return genAdditionProblem(min, max, decimalPlaces, givenExpression);
       case 'subtraction':
-        return genSubtractionProblem(min, max, positiveOnly, givenExpression);
+        return genSubtractionProblem(
+          min,
+          max,
+          positiveOnly,
+          decimalPlaces,
+          givenExpression
+        );
       case 'multiplication':
-        return genMultiplicationProblem(min, max, givenExpression);
+        return genMultiplicationProblem(
+          min,
+          max,
+          decimalPlaces,
+          givenExpression
+        );
       default:
         return genDivisionProblem(
           min,
@@ -59,11 +71,18 @@ export const genArithmeticProblem = (
 export const genAdditionProblem = (
   min: number,
   max: number,
+  decimalPlaces: number,
   givenExpression?: MathProblem
 ): MathProblem => {
   const operands = givenExpression
-    ? [...givenExpression.operands, randomIntFromInterval(min, max)]
-    : [randomIntFromInterval(min, max), randomIntFromInterval(min, max)];
+    ? [
+        ...givenExpression.operands,
+        randomFloatFromInterval(min, max, decimalPlaces),
+      ]
+    : [
+        randomFloatFromInterval(min, max, decimalPlaces),
+        randomFloatFromInterval(min, max, decimalPlaces),
+      ];
 
   const solution = givenExpression
     ? givenExpression.solution + operands[operands.length - 1]
@@ -82,7 +101,7 @@ export const genAdditionProblem = (
   return {
     simple: simple,
     laTex: convertStringToLatex(simple),
-    solution: solution,
+    solution: Number(solution.toFixed(decimalPlaces)),
     operands: operands,
   };
 };
@@ -91,16 +110,23 @@ export const genSubtractionProblem = (
   min: number,
   max: number,
   nonNegativeSolutionOnly: boolean,
+  decimalPlaces: number,
   givenExpression?: MathProblem
 ): MathProblem => {
   // determining the first operand reduces randomness but is more performant
   const operands = givenExpression
     ? [...givenExpression.operands]
-    : [randomIntFromInterval(min, max)];
+    : [randomFloatFromInterval(min, max, decimalPlaces)];
 
   nonNegativeSolutionOnly
-    ? operands.push(randomIntFromInterval(min, operands[operands.length - 1]))
-    : operands.push(randomIntFromInterval(min, max));
+    ? operands.push(
+        randomFloatFromInterval(
+          min,
+          operands[operands.length - 1],
+          decimalPlaces
+        )
+      )
+    : operands.push(randomFloatFromInterval(min, max, decimalPlaces));
 
   let solution = givenExpression
     ? givenExpression.solution - operands[operands.length - 1]
@@ -118,19 +144,27 @@ export const genSubtractionProblem = (
   return {
     simple: simple,
     laTex: convertStringToLatex(simple),
-    solution: solution,
+    solution: Number(solution.toFixed(decimalPlaces)),
     operands: operands,
   };
 };
 
+// TODO: enable rounding of answers
 export const genMultiplicationProblem = (
   min: number,
   max: number,
+  decimalPlaces: number,
   givenExpression?: MathProblem
 ): MathProblem => {
   let operands = givenExpression
-    ? [...givenExpression.operands, randomIntFromInterval(min, max)]
-    : [randomIntFromInterval(min, max), randomIntFromInterval(min, max)];
+    ? [
+        ...givenExpression.operands,
+        randomFloatFromInterval(min, max, decimalPlaces),
+      ]
+    : [
+        randomFloatFromInterval(min, max, decimalPlaces),
+        randomFloatFromInterval(min, max, decimalPlaces),
+      ];
 
   const solution = givenExpression
     ? givenExpression.solution * operands[operands.length - 1]
@@ -143,7 +177,7 @@ export const genMultiplicationProblem = (
   return {
     simple: simple,
     laTex: convertStringToLatex(simple),
-    solution: solution,
+    solution: Number(solution.toFixed(decimalPlaces)),
     operands: operands,
   };
 };
@@ -152,7 +186,7 @@ export const genMultiplicationProblem = (
 export const genDivisionProblem = (
   min: number,
   max: number,
-  integerOnly: boolean = true,
+  integerOnly = true,
   givenExpression?: MathProblem
 ): MathProblem => {
   if (givenExpression) {
