@@ -1,6 +1,7 @@
 import {
   convertStringToLatex,
   getRandomFactor,
+  randomFloatFromInterval,
   simplifyFraction,
 } from '../../functions/utilFuncs';
 
@@ -121,6 +122,34 @@ describe('convertStringToLatex', () => {
     expect(resultA).toEqual('1+\\sqrt{2}');
     expect(resultB).toEqual('\\sqrt{1+\\left(x+3\\right)}');
     expect(resultC).toEqual('\\sqrt{\\frac{2}{3}}');
+  });
+});
+
+describe('randomFloatFromInt', () => {
+  it('should get an integer', () => {
+    const integer = randomFloatFromInterval(-10, 10, 0, false);
+    expect(integer).toBeGreaterThanOrEqual(-10);
+    expect(integer).toBeLessThanOrEqual(10);
+    expect(integer.toString().match(/\./)).toBe(null);
+  });
+
+  it('should get a float with 3 decimal places', () => {
+    const three = randomFloatFromInterval(-10, 10, 3, false);
+
+    expect(three.toString().split('.')[1]).toHaveProperty('length', 3);
+  });
+
+  it('should get a negative number', () => {
+    const negative = randomFloatFromInterval(-10, 1, 3, false);
+
+    expect(negative).toBeLessThan(0);
+    expect(negative.toString().split('.')[1]).toHaveProperty('length', 3);
+  });
+
+  it('should be nonzero', () => {
+    const nonzero = randomFloatFromInterval(-1, 1, 0, true);
+
+    expect(nonzero === 1 || nonzero === -1);
   });
 });
 

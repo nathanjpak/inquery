@@ -56,24 +56,51 @@ export const getRandomFactor = (
 export const randomIntFromInterval = (
   min: number,
   max: number,
-  nonZero?: boolean
+  nonZero = false
 ): number => {
   if (nonZero && min < 0 && max > 0) {
     // configure weighted probability
     const totalValues = min + max - 1;
     const positiveProbability = max / totalValues;
-    const negativeProbability = 1 - positiveProbability;
 
     const positiveOrNegative = Math.random();
 
-    if (positiveOrNegative > negativeProbability) {
+    if (positiveOrNegative < positiveProbability) {
       return Math.floor(Math.random() * max) + 1;
     } else {
-      return Math.floor(Math.random() * (-1 - min + 1)) + min;
+      return Math.floor(Math.random() * (min - 1));
     }
   }
 
   return Math.floor(Math.random() * (max - min + 1)) + min;
+};
+
+export const randomFloatFromInterval = (
+  min: number,
+  max: number,
+  decimalPlaces = 2,
+  nonZero = false
+): number => {
+  const multiplier = Math.pow(10, decimalPlaces);
+
+  if (nonZero && min < 0 && max > 0) {
+    // configure weighted probability
+    const totalValues = min + max - 1;
+    const positiveProbability = max / totalValues;
+
+    const positiveOrNegative = Math.random();
+
+    if (positiveOrNegative < positiveProbability) {
+      return Math.floor((Math.random() * max + 1) * multiplier) / multiplier;
+    } else {
+      return Math.floor((Math.random() * min - 1) * multiplier) / multiplier;
+    }
+  }
+
+  return (
+    Math.floor((Math.random() * (max - min + 1) + min) * multiplier) /
+    multiplier
+  );
 };
 
 // TODO: implement square roots
