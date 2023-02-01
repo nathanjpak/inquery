@@ -264,16 +264,15 @@ export const convertStringToLatex = (
 
 // TODO: implement floating decimal components?
 // For now, it assumes integer components
-export const simplifyFraction = (fraction: string): string => {
-  const fractionComponents = fraction.split('/');
-  const numerator = parseInt(fractionComponents[0]);
-  const denominator = parseInt(fractionComponents[1]);
+export const simplifyFraction = (
+  numerator: number,
+  denominator: number
+): number[] | number => {
+  if (!denominator) return numerator;
 
-  if (numerator === denominator) return '1';
-  if (numerator % denominator === 0)
-    return (numerator / denominator).toString();
+  if (numerator % denominator === 0) return numerator / denominator;
 
-  const gcd = ((num1, num2) => {
+  const gcf = ((num1, num2) => {
     const [low, high] = num1 < num2 ? [num1, num2] : [num2, num1];
     const isEven: boolean = low % 2 === 0;
     const max = Math.sqrt(low);
@@ -301,9 +300,11 @@ export const simplifyFraction = (fraction: string): string => {
     return factors[factorIndex];
   })(Math.abs(numerator), Math.abs(denominator));
 
-  const sign = numerator * denominator < 0 ? '-' : '';
+  let newNumerator =
+    numerator * denominator < 0
+      ? -Math.abs(numerator) / gcf
+      : Math.abs(numerator) / gcf;
+  let newDenominator = Math.abs(denominator) / gcf;
 
-  return `${sign}${(Math.abs(numerator) / gcd).toString()}/${(
-    Math.abs(denominator) / gcd
-  ).toString()}`;
+  return [newNumerator, newDenominator];
 };
