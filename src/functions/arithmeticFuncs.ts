@@ -5,9 +5,9 @@ import {
   randomIntFromInterval,
 } from './utilFuncs';
 
-import {ArithmeticParams, MathProblem, operation} from './Types';
+import {ArithmeticParams, ArithmeticProblem, Operation} from './Types';
 
-const defaultOperations: operation[] = [
+const defaultOperations: Operation[] = [
   'addition',
   'subtraction',
   'multiplication',
@@ -18,12 +18,12 @@ const defaultOperations: operation[] = [
 
 export const genArithmeticProblem = (
   params: ArithmeticParams,
-  givenExpression?: MathProblem
-): MathProblem => {
+  givenExpression?: ArithmeticProblem
+): ArithmeticProblem => {
   let min = params.min || 1,
     max = params.max || 15,
     steps = params.steps || 1,
-    operations: operation[] = params.operations || defaultOperations,
+    operations: Operation[] = params.operations || defaultOperations,
     positiveOnly = params.operands.positiveOnly,
     decimalPlaces = params.operands.decimalPlaces;
   if (!positiveOnly && min > 0) min = -max;
@@ -31,7 +31,7 @@ export const genArithmeticProblem = (
   // set operation randomly
   const operation = operations[~~(Math.random() * operations.length)];
 
-  const getProblem = (operation: operation) => {
+  const getProblem = (operation: Operation) => {
     switch (operation) {
       case 'addition':
         return genAdditionProblem(min, max, decimalPlaces, givenExpression);
@@ -72,8 +72,8 @@ export const genAdditionProblem = (
   min: number,
   max: number,
   decimalPlaces: number,
-  givenExpression?: MathProblem
-): MathProblem => {
+  givenExpression?: ArithmeticProblem
+): ArithmeticProblem => {
   const operands = givenExpression
     ? [
         ...givenExpression.operands,
@@ -111,8 +111,8 @@ export const genSubtractionProblem = (
   max: number,
   nonNegativeSolutionOnly: boolean,
   decimalPlaces: number,
-  givenExpression?: MathProblem
-): MathProblem => {
+  givenExpression?: ArithmeticProblem
+): ArithmeticProblem => {
   // determining the first operand reduces randomness but is more performant
   const operands = givenExpression
     ? [...givenExpression.operands]
@@ -154,8 +154,8 @@ export const genMultiplicationProblem = (
   min: number,
   max: number,
   decimalPlaces: number,
-  givenExpression?: MathProblem
-): MathProblem => {
+  givenExpression?: ArithmeticProblem
+): ArithmeticProblem => {
   let operands = givenExpression
     ? [
         ...givenExpression.operands,
@@ -187,8 +187,8 @@ export const genDivisionProblem = (
   min: number,
   max: number,
   integerOnly = true,
-  givenExpression?: MathProblem
-): MathProblem => {
+  givenExpression?: ArithmeticProblem
+): ArithmeticProblem => {
   if (givenExpression) {
     const dividend = givenExpression.solution,
       divisor = integerOnly
