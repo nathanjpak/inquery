@@ -8,7 +8,7 @@ import {
 
 describe('genAdd function', () => {
   it('should return a proper equation', () => {
-    const result = genAdditionProblem(0, 20, 0);
+    const result = genAdditionProblem(1, 20, 0);
 
     expect(typeof result.simple).toBe('string');
     expect(result.simple.indexOf('+')).toEqual(
@@ -52,7 +52,7 @@ describe('genAdd function', () => {
 
 describe('genSub function', () => {
   it('should return a proper equation', () => {
-    const result = genSubtractionProblem(0, 20, false, 0);
+    const result = genSubtractionProblem(1, 20, false, 0);
 
     expect(typeof result.simple).toBe('string');
     expect(result.simple.indexOf('-')).toEqual(
