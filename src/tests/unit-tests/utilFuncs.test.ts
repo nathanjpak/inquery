@@ -1,9 +1,11 @@
 import {
   convertStringToLatex,
+  getPrimeFactorization,
   getRandomFactor,
   getSortedFactors,
   randomFloatFromInterval,
   simplifyFraction,
+  getLCM,
 } from '../../functions/utilFuncs';
 
 describe('getRandomFactor', () => {
@@ -170,6 +172,20 @@ describe('simplifyFraction', () => {
   });
 });
 
+describe('get LCM', () => {
+  it('should return least common multiple', () => {
+    const primes = getLCM(2, 7);
+    const multiple = getLCM(12, 36);
+    const lessSimple = getLCM(9, 24);
+    const equal = getLCM(5, 5);
+
+    expect(primes).toEqual(14);
+    expect(multiple).toEqual(36);
+    expect(lessSimple).toEqual(24 * 3);
+    expect(equal).toEqual(5);
+  });
+});
+
 describe('getSortedFactors', () => {
   it('should return sorted factors', () => {
     const one = getSortedFactors(1);
@@ -181,5 +197,19 @@ describe('getSortedFactors', () => {
     expect(prime).toEqual([1, 11]);
     expect(odd).toEqual([1, 3, 9]);
     expect(even).toEqual([1, 2, 3, 4, 6, 12]);
+  });
+});
+
+describe('getPrimeFactors', () => {
+  it('should return prime factors as an array', () => {
+    const one = getPrimeFactorization(1);
+    const prime = getPrimeFactorization(11);
+    const odd = getPrimeFactorization(45);
+    const even = getPrimeFactorization(24);
+
+    expect(one).toEqual([1]);
+    expect(prime).toEqual([11]);
+    expect(odd).toEqual([3, 3, 5]);
+    expect(even).toEqual([2, 2, 2, 3]);
   });
 });

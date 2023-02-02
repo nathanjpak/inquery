@@ -75,6 +75,7 @@ export const randomIntFromInterval = (
   return Math.floor(Math.random() * (max - min + 1)) + min;
 };
 
+// DEBUG: min and max don't work as expected
 export const randomFloatFromInterval = (
   min: number,
   max: number,
@@ -272,16 +273,15 @@ export const simplifyFraction = (
 
   if (numerator % denominator === 0) return [numerator / denominator];
 
-  const gcf = ((num1, num2) => {
-    const [low, high] = num1 < num2 ? [num1, num2] : [num2, num1];
+  const [low, high] =
+    Math.abs(numerator) < Math.abs(denominator)
+      ? [Math.abs(numerator), Math.abs(denominator)]
+      : [Math.abs(numerator), Math.abs(denominator)];
 
-    const factors = getSortedFactors(low);
+  const getGCF = (num1: number, num2: number): number =>
+    num1 ? getGCF(num2 % num1, num1) : num2;
 
-    let factorIndex = factors.length - 1;
-    while (factorIndex > 0 && high % factors[factorIndex] !== 0) factorIndex--;
-
-    return factors[factorIndex];
-  })(Math.abs(numerator), Math.abs(denominator));
+  const gcf = getGCF(low, high);
 
   let newNumerator =
     numerator * denominator < 0
@@ -292,13 +292,20 @@ export const simplifyFraction = (
   return [newNumerator, newDenominator];
 };
 
-// export const getLCM = (num1: number, num2: number) => {
-//   if (num1 === num2) return num1;
+export const getLCM = (num1: number, num2: number) => {
+  if (num1 === num2) return num1;
 
-//   let low = num1 < num2 ? num1 : num2;
-//   let high = num1 > num2 ? num2 : num1;
-//   if (high % low === 0) return high;
-// };
+  let [low, high] = num1 < num2 ? [num1, num2] : [num2, num1];
+
+  if (high % low === 0) return high;
+
+  const getGCF = (num1: number, num2: number): number =>
+    num1 ? getGCF(num2 % num1, num1) : num2;
+
+  const gcf = getGCF(low, high);
+
+  return (num1 * num2) / gcf;
+};
 
 export const getSortedFactors = (num: number): number[] => {
   const max = Math.sqrt(num);
@@ -321,4 +328,23 @@ export const getSortedFactors = (num: number): number[] => {
   factors.push(...complements);
 
   return factors;
+};
+
+export const getPrimeFactorization = (num: number): number[] => {
+  if (num === 1) return [1];
+
+  const primeFactors: number[] = [];
+
+  let divisor = 2;
+
+  while (num >= 2) {
+    if (num % divisor === 0) {
+      primeFactors.push(divisor);
+      num = num / divisor;
+    } else {
+      divisor++;
+    }
+  }
+
+  return primeFactors;
 };
