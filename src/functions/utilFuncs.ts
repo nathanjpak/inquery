@@ -267,32 +267,15 @@ export const convertStringToLatex = (
 export const simplifyFraction = (
   numerator: number,
   denominator: number
-): number[] | number => {
-  if (!denominator) return numerator;
+): number[] => {
+  if (!denominator) return [numerator];
 
-  if (numerator % denominator === 0) return numerator / denominator;
+  if (numerator % denominator === 0) return [numerator / denominator];
 
   const gcf = ((num1, num2) => {
     const [low, high] = num1 < num2 ? [num1, num2] : [num2, num1];
-    const isEven: boolean = low % 2 === 0;
-    const max = Math.sqrt(low);
-    const increment = isEven ? 1 : 2;
 
-    const factors = [1],
-      complements = [low];
-
-    for (
-      let currentFactor = isEven ? 2 : 3;
-      currentFactor <= max;
-      currentFactor += increment
-    ) {
-      if (low % currentFactor !== 0) continue;
-      factors.push(currentFactor);
-      let complement = low / currentFactor;
-      if (complement !== currentFactor) complements.unshift(complement);
-    }
-
-    factors.push(...complements);
+    const factors = getSortedFactors(low);
 
     let factorIndex = factors.length - 1;
     while (factorIndex > 0 && high % factors[factorIndex] !== 0) factorIndex--;
@@ -307,4 +290,35 @@ export const simplifyFraction = (
   let newDenominator = Math.abs(denominator) / gcf;
 
   return [newNumerator, newDenominator];
+};
+
+// export const getLCM = (num1: number, num2: number) => {
+//   if (num1 === num2) return num1;
+
+//   let low = num1 < num2 ? num1 : num2;
+//   let high = num1 > num2 ? num2 : num1;
+//   if (high % low === 0) return high;
+// };
+
+export const getSortedFactors = (num: number): number[] => {
+  const max = Math.sqrt(num);
+  const increment = num % 2 === 0 ? 1 : 2;
+
+  const factors = [],
+    complements = [];
+
+  for (
+    let currentFactor = 1;
+    currentFactor <= max;
+    currentFactor += increment
+  ) {
+    if (num % currentFactor !== 0) continue;
+    factors.push(currentFactor);
+    let complement = num / currentFactor;
+    if (complement !== currentFactor) complements.unshift(complement);
+  }
+
+  factors.push(...complements);
+
+  return factors;
 };

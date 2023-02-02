@@ -1,6 +1,7 @@
 import {
   convertStringToLatex,
   getRandomFactor,
+  getSortedFactors,
   randomFloatFromInterval,
   simplifyFraction,
 } from '../../functions/utilFuncs';
@@ -161,10 +162,24 @@ describe('simplifyFraction', () => {
       negDenominator = simplifyFraction(30, -50),
       bothNegative = simplifyFraction(-9, -5);
 
-    expect(one).toEqual(1);
+    expect(one).toEqual([1]);
     expect(simpleExample).toEqual([1, 9]);
-    expect(wholeNumber).toEqual(4);
+    expect(wholeNumber).toEqual([4]);
     expect(negDenominator).toEqual([-3, 5]);
     expect(bothNegative).toEqual([9, 5]);
+  });
+});
+
+describe('getSortedFactors', () => {
+  it('should return sorted factors', () => {
+    const one = getSortedFactors(1);
+    const prime = getSortedFactors(11);
+    const odd = getSortedFactors(9);
+    const even = getSortedFactors(12);
+
+    expect(one).toEqual([1]);
+    expect(prime).toEqual([1, 11]);
+    expect(odd).toEqual([1, 3, 9]);
+    expect(even).toEqual([1, 2, 3, 4, 6, 12]);
   });
 });
