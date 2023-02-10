@@ -120,7 +120,7 @@ export const genFractionAddition = (
   const sum = numerators[0] * multipliers[0] + numerators[1] * multipliers[1];
 
   const solutionSplit: number[] = simplifyFraction(sum, commonDenom);
-  let solutionString = `${solutionSplit[0]}/${solutionSplit[1]}`;
+  let solutionString = solutionSplit.join('/');
 
   if (mixedNumbersAllowed && solutionSplit[0] > solutionSplit[1]) {
     solutionString = buildMixedNumber(solutionSplit[0], solutionSplit[1]);

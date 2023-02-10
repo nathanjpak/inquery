@@ -27,6 +27,9 @@ describe('gen Frac Addition', () => {
     expect(sameDenom.laTex).toEqual('\\frac{1}{4}+\\frac{2}{4}');
     expect(wholeNumberOperand.simple).toEqual('2+1/2');
     expect(wholeNumberOperand.laTex).toEqual('2+\\frac{1}{2}');
+
+    expect(sameDenom.solutionString).toEqual('3/4');
+    expect(wholeNumberSolution.solutionString).toEqual('1');
   });
 
   it('should work with mixed numbers', () => {
