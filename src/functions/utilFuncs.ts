@@ -75,7 +75,7 @@ export const randomIntFromInterval = (
   return Math.floor(Math.random() * (max - min + 1)) + min;
 };
 
-// DEBUG: min and max don't work as expected
+// DEBUG: min and max don't work as expected, esp with negatives
 export const randomFloatFromInterval = (
   min: number,
   max: number,

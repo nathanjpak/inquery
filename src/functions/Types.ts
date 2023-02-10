@@ -32,6 +32,30 @@ export class ArithmeticProblem extends MathProblem {
   }
 }
 
+export class FractionProblem extends MathProblem {
+  solutionString: string;
+  solutionSplit: number[];
+  operands: string[];
+  operandsSplit: number[][];
+  mixedNumbersAllowed: boolean;
+  constructor(
+    simple: string,
+    laTex: string,
+    solutionString: string,
+    solutionSplit: number[],
+    operands: string[],
+    operandsSplit: number[][],
+    mixedNumbersAllowed: boolean
+  ) {
+    super(simple, laTex);
+    this.solutionString = solutionString;
+    this.solutionSplit = solutionSplit;
+    this.operands = operands;
+    this.operandsSplit = operandsSplit;
+    this.mixedNumbersAllowed = mixedNumbersAllowed;
+  }
+}
+
 // param interaces
 export interface ArithmeticParams {
   min?: number;
