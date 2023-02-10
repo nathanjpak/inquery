@@ -139,6 +139,49 @@ export const genFractionAddition = (
   };
 };
 
+export const genFractionSubtraction = (
+  operands: number[][],
+  mixedNumbersAllowed = false,
+  givenExpression?: FractionProblem
+) => {
+  if (givenExpression) console.log('TBD');
+
+  const numerators: number[] = [],
+    denominators: number[] = [];
+  operands.forEach(fraction => {
+    fraction.length < 2 ? denominators.push(1) : denominators.push(fraction[1]);
+    numerators.push(fraction[0]);
+  });
+
+  const commonDenom = getLCM(denominators[0], denominators[1]);
+  const multipliers = [
+    commonDenom / denominators[1],
+    commonDenom / denominators[1],
+  ];
+
+  const difference =
+    numerators[0] * multipliers[0] - numerators[1] * multipliers[1];
+
+  const solutionSplit: number[] = simplifyFraction(difference, commonDenom);
+  let solutionString = solutionSplit.join('/');
+
+  if (mixedNumbersAllowed && solutionSplit[0] > solutionSplit[1]) {
+    solutionString = buildMixedNumber(solutionSplit[0], solutionSplit[1]);
+  }
+
+  const simple = buildFractionString(operands, '-', mixedNumbersAllowed);
+
+  return {
+    simple: simple,
+    laTex: convertStringToLatex(simple),
+    solutionString: solutionString,
+    solutionSplit: solutionSplit,
+    operands: simple.split('-'),
+    operandsSplit: operands,
+    mixedNumbersAllowed: mixedNumbersAllowed,
+  };
+};
+
 const buildFractionString = (
   operands: number[][],
   operation: string,
