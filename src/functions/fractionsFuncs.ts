@@ -40,8 +40,6 @@ export const genFractionProblem = (
     simplified = params.operands.simplified,
     numeratorScaler = params.operands.numeratorScaler || 5;
 
-  if (!positiveOnly && min > 0) min = -max;
-
   // set operation randomly
   const operation = operations[~~Math.random() * operations.length];
 
@@ -76,23 +74,80 @@ export const genFractionProblem = (
         [numerators[1], denominators[1]],
       ];
 
-  const getProblem = (operation: Operation): FractionProblem => {
+  const operandStrings = [
+    stringifyFraction(operands[0], mixedNumbersAllowed),
+    stringifyFraction(operands[1], mixedNumbersAllowed),
+  ];
+
+  const simple = buildFracSimpleString(
+    operands,
+    operandStrings,
+    operation,
+    givenExpression
+  );
+
+  const solution = ((): number[] => {
     switch (operation) {
       default:
-        return genFractionAddition(
-          operands,
-          mixedNumbersAllowed,
-          givenExpression
-        );
+        return solveFractionAddition(operands[0], operands[1]);
     }
-  };
+  })();
 
-  const problem = getProblem(operation);
+  const problem = new FractionProblem(
+    simple,
+    convertStringToLatex(simple),
+    solution.join('/'),
+    solution,
+    operandStrings,
+    operands,
+    mixedNumbersAllowed
+  );
 
   if (steps > 1)
     return genFractionProblem({...params, steps: steps - 1}, problem);
 
   return problem;
+};
+
+export const buildFracSimpleString = (
+  operands: number[][],
+  operandStrings: string[],
+  operation: Operation,
+  givenExpression?: FractionProblem
+): string => {
+  const operationSymbols = {
+    addition: '+',
+    subtraction: '-',
+    multiplication: '*',
+    division: '/',
+  };
+
+  const firstHalfString = givenExpression
+    ? `(${givenExpression.simple})`
+    : operation === 'division'
+    ? `(${operandStrings[0]})`
+    : operandStrings[0];
+  const secondHalfString =
+    operands[1][0] < 0 || operands[1][1] < 0 || operation === 'division'
+      ? `(${operandStrings[1]})`
+      : operandStrings[1];
+
+  return `${firstHalfString}${operationSymbols[operation]}${secondHalfString}`;
+};
+
+export const solveFractionAddition = (
+  first: number[],
+  second: number[]
+): number[] => {
+  if (first.length < 2) first.push(1);
+  if (second.length < 2) second.push(1);
+
+  const commonDenom = getLCM(first[1], second[1]);
+  const multipliers = [commonDenom / first[1], commonDenom / second[1]];
+
+  const sum = first[0] * multipliers[0] + second[0] * multipliers[1];
+
+  return simplifyFraction(sum, commonDenom);
 };
 
 // TODO: implement negative operands
@@ -126,14 +181,24 @@ export const genFractionAddition = (
     solutionString = buildMixedNumber(solutionSplit[0], solutionSplit[1]);
   }
 
-  const simple = buildFractionString(operands, '+', mixedNumbersAllowed);
+  const operandStrings: string[] = [];
+
+  operandStrings.push(
+    stringifyFraction(operands[0], mixedNumbersAllowed),
+    stringifyFraction(operands[1], mixedNumbersAllowed)
+  );
+
+  const simple =
+    numerators[1] < 0 || denominators[1] < 0
+      ? `${operandStrings[0]}+(${operandStrings[1]})`
+      : operandStrings.join('+');
 
   return {
     simple: simple,
     laTex: convertStringToLatex(simple),
     solutionString: solutionString,
     solutionSplit: solutionSplit,
-    operands: simple.split('+'),
+    operands: operandStrings,
     operandsSplit: operands,
     mixedNumbersAllowed: mixedNumbersAllowed,
   };
@@ -257,6 +322,15 @@ export const genFractionDivision = (
   };
 };
 
+export const stringifyFraction = (
+  fraction: number[],
+  mixedNumbersAllowed: boolean
+): string => {
+  return mixedNumbersAllowed && fraction.length > 1
+    ? buildMixedNumber(fraction[0], fraction[1])
+    : fraction.join('/');
+};
+
 const buildFractionString = (
   operands: number[][],
   operation: string,
@@ -264,11 +338,15 @@ const buildFractionString = (
 ): string => {
   const operandStrings: string[] = [];
 
-  operands.forEach(fraction => {
+  operands.forEach((fraction, index) => {
     if (mixedNumbersAllowed && fraction.length > 1) {
       operandStrings.push(buildMixedNumber(fraction[0], fraction[1]));
     } else {
       operandStrings.push(fraction.join('/'));
+    }
+
+    if (index && (fraction[0] < 0 || fraction[1] < 0)) {
+      operandStrings[index] = '(' + operandStrings[index] + ')';
     }
   });
 
