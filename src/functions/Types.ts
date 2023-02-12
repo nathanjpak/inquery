@@ -1,13 +1,4 @@
-// problem interfaces
 // solution is a string to account for
-// export interface MathProblem {
-//   simple: string;
-//   laTex: string;
-//   solution: string;
-//   operands: number[];
-//   variables?: string[];
-// }
-
 export class MathProblem {
   simple: string;
   laTex: string;

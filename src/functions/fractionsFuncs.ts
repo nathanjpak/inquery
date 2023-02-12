@@ -74,10 +74,30 @@ export const genFractionProblem = (
         [numerators[1], denominators[1]],
       ];
 
-  const operandStrings = [
-    stringifyFraction(operands[0], mixedNumbersAllowed),
-    stringifyFraction(operands[1], mixedNumbersAllowed),
-  ];
+  const problem = buildFracProblem(
+    operands,
+    operation,
+    mixedNumbersAllowed,
+    givenExpression
+  );
+
+  if (steps > 1)
+    return genFractionProblem({...params, steps: steps - 1}, problem);
+
+  return problem;
+};
+
+export const buildFracProblem = (
+  operands: number[][],
+  operation: Operation,
+  mixedNumbersAllowed: boolean,
+  givenExpression?: FractionProblem
+): FractionProblem => {
+  const operandStrings: string[] = [];
+  givenExpression
+    ? operandStrings.push(givenExpression.simple)
+    : operandStrings.push(stringifyFraction(operands[0], mixedNumbersAllowed));
+  operandStrings.push(stringifyFraction(operands[1], mixedNumbersAllowed));
 
   const simple = buildFracSimpleString(
     operands,
@@ -88,25 +108,31 @@ export const genFractionProblem = (
 
   const solution = ((): number[] => {
     switch (operation) {
+      case 'multiplication':
+        return solveFractionMult(operands[0], operands[1]);
+      case 'division':
+        return solveFractionDiv(operands[0], operands[1]);
       default:
-        return solveFractionAddition(operands[0], operands[1]);
+        return solveFractionAddOrSub(operands[0], operands[1], operation);
     }
   })();
 
-  const problem = new FractionProblem(
+  const laTex =
+    operation !== 'division'
+      ? convertStringToLatex(simple)
+      : convertStringToLatex(operandStrings[0]) +
+        '\\div' +
+        convertStringToLatex(operandStrings[1]);
+
+  return new FractionProblem(
     simple,
-    convertStringToLatex(simple),
+    laTex,
     solution.join('/'),
     solution,
     operandStrings,
     operands,
     mixedNumbersAllowed
   );
-
-  if (steps > 1)
-    return genFractionProblem({...params, steps: steps - 1}, problem);
-
-  return problem;
 };
 
 export const buildFracSimpleString = (
@@ -122,11 +148,10 @@ export const buildFracSimpleString = (
     division: '/',
   };
 
-  const firstHalfString = givenExpression
-    ? `(${givenExpression.simple})`
-    : operation === 'division'
-    ? `(${operandStrings[0]})`
-    : operandStrings[0];
+  const firstHalfString =
+    givenExpression || operation === 'division'
+      ? `(${operandStrings[0]})`
+      : operandStrings[0];
   const secondHalfString =
     operands[1][0] < 0 || operands[1][1] < 0 || operation === 'division'
       ? `(${operandStrings[1]})`
@@ -135,9 +160,10 @@ export const buildFracSimpleString = (
   return `${firstHalfString}${operationSymbols[operation]}${secondHalfString}`;
 };
 
-export const solveFractionAddition = (
+export const solveFractionAddOrSub = (
   first: number[],
-  second: number[]
+  second: number[],
+  operation: 'addition' | 'subtraction'
 ): number[] => {
   if (first.length < 2) first.push(1);
   if (second.length < 2) second.push(1);
@@ -145,181 +171,30 @@ export const solveFractionAddition = (
   const commonDenom = getLCM(first[1], second[1]);
   const multipliers = [commonDenom / first[1], commonDenom / second[1]];
 
-  const sum = first[0] * multipliers[0] + second[0] * multipliers[1];
+  const result =
+    operation === 'addition'
+      ? first[0] * multipliers[0] + second[0] * multipliers[1]
+      : first[0] * multipliers[0] - second[0] * multipliers[1];
 
-  return simplifyFraction(sum, commonDenom);
+  return simplifyFraction(result, commonDenom);
 };
 
-// TODO: implement negative operands
-// TODO: implement given expression
-export const genFractionAddition = (
-  operands: number[][],
-  mixedNumbersAllowed = false,
-  givenExpression?: FractionProblem
-): FractionProblem => {
-  if (givenExpression) console.log('TBD');
-
-  const numerators: number[] = [],
-    denominators: number[] = [];
-  operands.forEach(fraction => {
-    fraction.length < 2 ? denominators.push(1) : denominators.push(fraction[1]);
-    numerators.push(fraction[0]);
-  });
-
-  const commonDenom = getLCM(denominators[0], denominators[1]);
-  const multipliers = [
-    commonDenom / denominators[0],
-    commonDenom / denominators[1],
-  ];
-
-  const sum = numerators[0] * multipliers[0] + numerators[1] * multipliers[1];
-
-  const solutionSplit: number[] = simplifyFraction(sum, commonDenom);
-  let solutionString = solutionSplit.join('/');
-
-  if (mixedNumbersAllowed && solutionSplit[0] > solutionSplit[1]) {
-    solutionString = buildMixedNumber(solutionSplit[0], solutionSplit[1]);
-  }
-
-  const operandStrings: string[] = [];
-
-  operandStrings.push(
-    stringifyFraction(operands[0], mixedNumbersAllowed),
-    stringifyFraction(operands[1], mixedNumbersAllowed)
-  );
-
-  const simple =
-    numerators[1] < 0 || denominators[1] < 0
-      ? `${operandStrings[0]}+(${operandStrings[1]})`
-      : operandStrings.join('+');
-
-  return {
-    simple: simple,
-    laTex: convertStringToLatex(simple),
-    solutionString: solutionString,
-    solutionSplit: solutionSplit,
-    operands: operandStrings,
-    operandsSplit: operands,
-    mixedNumbersAllowed: mixedNumbersAllowed,
-  };
+export const solveFractionMult = (
+  first: number[],
+  second: number[]
+): number[] => {
+  const numerator = first[0] * second[0];
+  const denominator = (first[1] || 1) * (second[1] || 1);
+  return simplifyFraction(numerator, denominator);
 };
 
-export const genFractionSubtraction = (
-  operands: number[][],
-  mixedNumbersAllowed = false,
-  givenExpression?: FractionProblem
-): FractionProblem => {
-  if (givenExpression) console.log('TBD');
-
-  const numerators: number[] = [],
-    denominators: number[] = [];
-  operands.forEach(fraction => {
-    fraction.length < 2 ? denominators.push(1) : denominators.push(fraction[1]);
-    numerators.push(fraction[0]);
-  });
-
-  const commonDenom = getLCM(denominators[0], denominators[1]);
-  const multipliers = [
-    commonDenom / denominators[1],
-    commonDenom / denominators[1],
-  ];
-
-  const difference =
-    numerators[0] * multipliers[0] - numerators[1] * multipliers[1];
-
-  const solutionSplit: number[] = simplifyFraction(difference, commonDenom);
-  let solutionString = solutionSplit.join('/');
-
-  if (mixedNumbersAllowed && solutionSplit[0] > solutionSplit[1]) {
-    solutionString = buildMixedNumber(solutionSplit[0], solutionSplit[1]);
-  }
-
-  const simple = buildFractionString(operands, '-', mixedNumbersAllowed);
-
-  return {
-    simple: simple,
-    laTex: convertStringToLatex(simple),
-    solutionString: solutionString,
-    solutionSplit: solutionSplit,
-    operands: simple.split('-'),
-    operandsSplit: operands,
-    mixedNumbersAllowed: mixedNumbersAllowed,
-  };
-};
-
-export const genFractionMultiplication = (
-  operands: number[][],
-  mixedNumbersAllowed = false,
-  givenExpression?: FractionProblem
-): FractionProblem => {
-  if (givenExpression) console.log('TBD');
-
-  const numerators: number[] = [],
-    denominators: number[] = [];
-  operands.forEach(fraction => {
-    fraction.length < 2 ? denominators.push(1) : denominators.push(fraction[1]);
-    numerators.push(fraction[0]);
-  });
-
-  const solutionSplit: number[] = simplifyFraction(
-    numerators[0] * numerators[1],
-    denominators[0] * denominators[1]
-  );
-  let solutionString = solutionSplit.join('/');
-
-  if (mixedNumbersAllowed && solutionSplit[0] > solutionSplit[1]) {
-    solutionString = buildMixedNumber(solutionSplit[0], solutionSplit[1]);
-  }
-
-  const simple = buildFractionString(operands, '*', mixedNumbersAllowed);
-
-  return {
-    simple: simple,
-    laTex: convertStringToLatex(simple),
-    solutionString: solutionString,
-    solutionSplit: solutionSplit,
-    operands: simple.split('-'),
-    operandsSplit: operands,
-    mixedNumbersAllowed: mixedNumbersAllowed,
-  };
-};
-
-// TODO: fix operand strings
-export const genFractionDivision = (
-  operands: number[][],
-  mixedNumbersAllowed = false,
-  givenExpression?: FractionProblem
-): FractionProblem => {
-  if (givenExpression) console.log('TBD');
-
-  const numerators: number[] = [],
-    denominators: number[] = [];
-  operands.forEach(fraction => {
-    fraction.length < 2 ? denominators.push(1) : denominators.push(fraction[1]);
-    numerators.push(fraction[0]);
-  });
-
-  const solutionSplit: number[] = simplifyFraction(
-    numerators[0] * denominators[1],
-    denominators[0] * numerators[1]
-  );
-  let solutionString = solutionSplit.join('/');
-
-  if (mixedNumbersAllowed && solutionSplit[0] > solutionSplit[1]) {
-    solutionString = buildMixedNumber(solutionSplit[0], solutionSplit[1]);
-  }
-
-  const simple = buildFractionString(operands, '/', mixedNumbersAllowed);
-
-  return {
-    simple: simple,
-    laTex: convertStringToLatex(simple),
-    solutionString: solutionString,
-    solutionSplit: solutionSplit,
-    operands: simple.split('/'),
-    operandsSplit: operands,
-    mixedNumbersAllowed: mixedNumbersAllowed,
-  };
+export const solveFractionDiv = (
+  first: number[],
+  second: number[]
+): number[] => {
+  const numerator = first[0] * (second[1] || 1);
+  const denominator = (first[1] || 1) * second[0];
+  return simplifyFraction(numerator, denominator);
 };
 
 export const stringifyFraction = (
@@ -331,29 +206,10 @@ export const stringifyFraction = (
     : fraction.join('/');
 };
 
-const buildFractionString = (
-  operands: number[][],
-  operation: string,
-  mixedNumbersAllowed: boolean
+export const buildMixedNumber = (
+  numerator: number,
+  denominator: number
 ): string => {
-  const operandStrings: string[] = [];
-
-  operands.forEach((fraction, index) => {
-    if (mixedNumbersAllowed && fraction.length > 1) {
-      operandStrings.push(buildMixedNumber(fraction[0], fraction[1]));
-    } else {
-      operandStrings.push(fraction.join('/'));
-    }
-
-    if (index && (fraction[0] < 0 || fraction[1] < 0)) {
-      operandStrings[index] = '(' + operandStrings[index] + ')';
-    }
-  });
-
-  return `${operandStrings[0]}${operation}${operandStrings[1]}`;
-};
-
-const buildMixedNumber = (numerator: number, denominator: number): string => {
   if (numerator <= denominator) return `${numerator}/${denominator}`;
 
   const newNumerator = numerator % denominator;

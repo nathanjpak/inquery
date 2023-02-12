@@ -82,6 +82,7 @@ describe('getRandomFactor', () => {
   // });
 });
 
+// TODO: Check interactions with negative fractions
 describe('convertStringToLatex', () => {
   it('should convert a basic expression', () => {
     const result = convertStringToLatex('3*12/4', false);
@@ -128,6 +129,7 @@ describe('convertStringToLatex', () => {
   });
 });
 
+// BUGFIX: boundaries (max) not working as expected
 describe('randomFloatFromInt', () => {
   it('should get an integer', () => {
     const integer = randomFloatFromInterval(-10, 10, 0, false);
