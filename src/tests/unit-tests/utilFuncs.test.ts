@@ -145,9 +145,10 @@ describe('randomFloatFromInt', () => {
   });
 
   it('should get a negative number', () => {
-    const negative = randomFloatFromInterval(-10, -1, 3, false);
+    const negative = randomFloatFromInterval(-2, -1, 3, false);
 
-    expect(negative).toBeLessThan(-1);
+    expect(negative).toBeLessThanOrEqual(-1);
+    expect(negative).toBeGreaterThanOrEqual(-2);
     expect(negative.toString().split('.')[1]).toHaveProperty('length', 3);
   });
 

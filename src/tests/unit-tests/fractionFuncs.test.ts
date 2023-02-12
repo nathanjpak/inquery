@@ -4,12 +4,11 @@ import {
   solveFractionAddOrSub,
   solveFractionDiv,
   solveFractionMult,
-  // genFractionAddition,
-  // genFractionMultiplication,
-  // genFractionSubtraction,
   stringifyFraction,
 } from '../../functions/fractionsFuncs';
 import {FractionProblem} from '../../functions/Types';
+
+// TODO: test fraction problem generator
 
 describe('build Frac Simple Expression String', () => {
   it('should return work with a simple examples', () => {

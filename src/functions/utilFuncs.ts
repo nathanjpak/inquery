@@ -99,8 +99,7 @@ export const randomFloatFromInterval = (
   }
 
   return (
-    Math.floor((Math.random() * (max - min + 1) + min) * multiplier) /
-    multiplier
+    Math.floor((Math.random() * (max - min) + min) * multiplier) / multiplier
   );
 };
 
