@@ -1,4 +1,5 @@
 import {
+  buildFracProblem,
   buildFracSimpleString,
   solveFractionAddOrSub,
   solveFractionDiv,
@@ -226,4 +227,117 @@ describe('fraction mult/div solvers', () => {
     expect(product).toEqual([-3, 2]);
     expect(quotient).toEqual([-8, 3]);
   });
+});
+
+describe('build fraction problems', () => {
+  it('should work with simple operands', () => {
+    const operands = [
+      [1, 2],
+      [3, 4],
+    ];
+    const additionProblem = buildFracProblem(operands, 'addition', false);
+    const divisionProblem = buildFracProblem(operands, 'division', false);
+
+    const expectedAddProblem = new FractionProblem(
+      '1/2+3/4',
+      '\\frac{1}{2}+\\frac{3}{4}',
+      '5/4',
+      [5, 4],
+      ['1/2', '3/4'],
+      operands,
+      false
+    );
+    const expectedDivProblem = new FractionProblem(
+      '(1/2)/(3/4)',
+      '\\frac{1}{2}\\div\\frac{3}{4}',
+      '2/3',
+      [2, 3],
+      ['1/2', '3/4'],
+      operands,
+      false
+    );
+
+    expect(additionProblem).toEqual(expectedAddProblem);
+    expect(divisionProblem).toEqual(expectedDivProblem);
+  });
+
+  it('should work with negative operands', () => {
+    const operands = [
+      [1, 2],
+      [3, -4],
+    ];
+    const subtractionProblem = buildFracProblem(operands, 'subtraction', false);
+    const divisionProblem = buildFracProblem(operands, 'division', false);
+
+    const expectedSubProblem = new FractionProblem(
+      '1/2-(3/-4)',
+      '\\frac{1}{2}-\\left(\\frac{3}{-4}\\right)',
+      '5/4',
+      [5, 4],
+      ['1/2', '3/-4'],
+      operands,
+      false
+    );
+    const expectedDivProblem = new FractionProblem(
+      '(1/2)/(3/-4)',
+      '\\frac{1}{2}\\div\\frac{3}{-4}',
+      '-2/3',
+      [-2, 3],
+      ['1/2', '3/-4'],
+      operands,
+      false
+    );
+
+    expect(subtractionProblem).toEqual(expectedSubProblem);
+    expect(divisionProblem).toEqual(expectedDivProblem);
+  });
+
+  it('should work with mixed numbers', () => {
+    const operands = [
+      [3, 2],
+      [5, 4],
+    ];
+
+    const additionProblem = buildFracProblem(operands, 'addition', true);
+    const multiplicationProblem = buildFracProblem(
+      operands,
+      'multiplication',
+      true
+    );
+    const divisionProblem = buildFracProblem(operands, 'division', true);
+
+    const expectedAddProblem = new FractionProblem(
+      '1 1/2+1 1/4',
+      '1 \\frac{1}{2}+1 \\frac{1}{4}',
+      '2 3/4',
+      [11, 4],
+      ['1 1/2', '1 1/4'],
+      operands,
+      true
+    );
+    const expectedMultProblem = new FractionProblem(
+      '1 1/2*1 1/4',
+      '1 \\frac{1}{2}\\cdot1 \\frac{1}{4}',
+      '1 7/8',
+      [15, 8],
+      ['1 1/2', '1 1/4'],
+      operands,
+      true
+    );
+    const expectedDivProblem = new FractionProblem(
+      '(1 1/2)/(1 1/4)',
+      '1 \\frac{1}{2}\\div1 \\frac{1}{4}',
+      '1 1/5',
+      [6, 5],
+      ['1 1/2', '1 1/4'],
+      operands,
+      true
+    );
+
+    expect(additionProblem).toEqual(expectedAddProblem);
+    expect(multiplicationProblem).toEqual(expectedMultProblem);
+    expect(divisionProblem).toEqual(expectedDivProblem);
+  });
+
+  it('should work with a given expression', () => {});
 });

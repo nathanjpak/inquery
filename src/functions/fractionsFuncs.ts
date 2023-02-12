@@ -106,6 +106,13 @@ export const buildFracProblem = (
     givenExpression
   );
 
+  const laTex =
+    operation !== 'division'
+      ? convertStringToLatex(simple)
+      : convertStringToLatex(operandStrings[0]) +
+        '\\div' +
+        convertStringToLatex(operandStrings[1]);
+
   const solution = ((): number[] => {
     switch (operation) {
       case 'multiplication':
@@ -117,17 +124,14 @@ export const buildFracProblem = (
     }
   })();
 
-  const laTex =
-    operation !== 'division'
-      ? convertStringToLatex(simple)
-      : convertStringToLatex(operandStrings[0]) +
-        '\\div' +
-        convertStringToLatex(operandStrings[1]);
+  const solutionString = mixedNumbersAllowed
+    ? buildMixedNumber(solution[0], solution[1])
+    : solution.join('/');
 
   return new FractionProblem(
     simple,
     laTex,
-    solution.join('/'),
+    solutionString,
     solution,
     operandStrings,
     operands,
