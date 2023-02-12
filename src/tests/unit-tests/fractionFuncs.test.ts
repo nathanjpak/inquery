@@ -1,6 +1,8 @@
 import {
   buildFracSimpleString,
   solveFractionAddOrSub,
+  solveFractionDiv,
+  solveFractionMult,
   // genFractionAddition,
   // genFractionMultiplication,
   // genFractionSubtraction,
@@ -191,5 +193,37 @@ describe('fraction add/sub solver', () => {
 
     expect(sum).toEqual([5, 4]);
     expect(diff).toEqual([11, 4]);
+  });
+});
+
+describe('fraction mult/div solvers', () => {
+  it('should work with simple operands', () => {
+    const operands = [
+      [1, 2],
+      [3, 4],
+    ];
+    const product = solveFractionMult(operands[0], operands[1]);
+    const quotient = solveFractionDiv(operands[0], operands[1]);
+
+    expect(product).toEqual([3, 8]);
+    expect(quotient).toEqual([2, 3]);
+  });
+
+  it('should work with whole numbers', () => {
+    const operands = [[2], [3, 4]];
+    const product = solveFractionMult(operands[0], operands[1]);
+    const quotient = solveFractionDiv(operands[0], operands[1]);
+
+    expect(product).toEqual([3, 2]);
+    expect(quotient).toEqual([8, 3]);
+  });
+
+  it('should work with negative numbers', () => {
+    const operands = [[2], [-3, 4]];
+    const product = solveFractionMult(operands[0], operands[1]);
+    const quotient = solveFractionDiv(operands[0], operands[1]);
+
+    expect(product).toEqual([-3, 2]);
+    expect(quotient).toEqual([-8, 3]);
   });
 });
