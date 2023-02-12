@@ -109,9 +109,9 @@ export const buildFracProblem = (
   const laTex =
     operation !== 'division'
       ? convertStringToLatex(simple)
-      : convertStringToLatex(operandStrings[0]) +
+      : convertStringToLatex(`(${operandStrings[0]})`) +
         '\\div' +
-        convertStringToLatex(operandStrings[1]);
+        convertStringToLatex(`(${operandStrings[1]})`);
 
   const solution = ((): number[] => {
     switch (operation) {

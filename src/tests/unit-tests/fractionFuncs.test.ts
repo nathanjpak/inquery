@@ -249,7 +249,7 @@ describe('build fraction problems', () => {
     );
     const expectedDivProblem = new FractionProblem(
       '(1/2)/(3/4)',
-      '\\frac{1}{2}\\div\\frac{3}{4}',
+      '\\left(\\frac{1}{2}\\right)\\div\\left(\\frac{3}{4}\\right)',
       '2/3',
       [2, 3],
       ['1/2', '3/4'],
@@ -280,7 +280,7 @@ describe('build fraction problems', () => {
     );
     const expectedDivProblem = new FractionProblem(
       '(1/2)/(3/-4)',
-      '\\frac{1}{2}\\div\\frac{3}{-4}',
+      '\\left(\\frac{1}{2}\\right)\\div\\left(\\frac{3}{-4}\\right)',
       '-2/3',
       [-2, 3],
       ['1/2', '3/-4'],
@@ -326,7 +326,7 @@ describe('build fraction problems', () => {
     );
     const expectedDivProblem = new FractionProblem(
       '(1 1/2)/(1 1/4)',
-      '1 \\frac{1}{2}\\div1 \\frac{1}{4}',
+      '\\left(1 \\frac{1}{2}\\right)\\div\\left(1 \\frac{1}{4}\\right)',
       '1 1/5',
       [6, 5],
       ['1 1/2', '1 1/4'],
@@ -339,5 +339,70 @@ describe('build fraction problems', () => {
     expect(divisionProblem).toEqual(expectedDivProblem);
   });
 
-  it('should work with a given expression', () => {});
+  it('should work with a given expression', () => {
+    const givenExpression = buildFracProblem(
+      [
+        [1, 2],
+        [3, 4],
+      ],
+      'addition',
+      false
+    );
+
+    const operands = [
+      [5, 4],
+      [3, 2],
+    ];
+
+    const subtractionProblem = buildFracProblem(
+      operands,
+      'subtraction',
+      false,
+      givenExpression
+    );
+    const multiplicationProblem = buildFracProblem(
+      operands,
+      'multiplication',
+      false,
+      givenExpression
+    );
+    const divisionProblem = buildFracProblem(
+      operands,
+      'division',
+      false,
+      givenExpression
+    );
+
+    const expectedSubProblem = new FractionProblem(
+      `(${givenExpression.simple})-3/2`,
+      `\\left(${givenExpression.laTex}\\right)-\\frac{3}{2}`,
+      '-1/4',
+      [-1, 4],
+      [givenExpression.simple, '3/2'],
+      operands,
+      false
+    );
+    const expectedMultProblem = new FractionProblem(
+      `(${givenExpression.simple})*3/2`,
+      `\\left(${givenExpression.laTex}\\right)\\cdot\\frac{3}{2}`,
+      '15/8',
+      [15, 8],
+      [givenExpression.simple, '3/2'],
+      operands,
+      false
+    );
+    const expectedDivProblem = new FractionProblem(
+      `(${givenExpression.simple})/(3/2)`,
+      `\\left(${givenExpression.laTex}\\right)\\div\\left(\\frac{3}{2}\\right)`,
+      '5/6',
+      [5, 6],
+      [givenExpression.simple, '3/2'],
+      operands,
+      false
+    );
+
+    expect(subtractionProblem).toEqual(expectedSubProblem);
+    expect(multiplicationProblem).toEqual(expectedMultProblem);
+    expect(divisionProblem).toEqual(expectedDivProblem);
+  });
 });
