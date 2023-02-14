@@ -79,3 +79,5 @@ export type Operation =
   | 'subtraction'
   | 'multiplication'
   | 'division';
+
+export type ProblemType = 'Arithmetic' | 'Fraction';
