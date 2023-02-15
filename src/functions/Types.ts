@@ -1,6 +1,11 @@
+import {Field, ObjectType} from 'type-graphql';
+
 // solution is a string to account for
+@ObjectType()
 export class MathProblem {
+  @Field()
   simple: string;
+  @Field()
   laTex: string;
   constructor(simple: string, laTex: string) {
     this.simple = simple;
@@ -8,7 +13,9 @@ export class MathProblem {
   }
 }
 
+@ObjectType()
 export class ArithmeticProblem extends MathProblem {
+  @Field()
   solution: number;
   operands: number[];
   constructor(
@@ -23,11 +30,15 @@ export class ArithmeticProblem extends MathProblem {
   }
 }
 
+@ObjectType()
 export class FractionProblem extends MathProblem {
+  @Field()
   solutionString: string;
+  @Field()
   solutionSplit: number[];
   operands: string[];
   operandsSplit: number[][];
+  @Field()
   mixedNumbersAllowed: boolean;
   constructor(
     simple: string,
