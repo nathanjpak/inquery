@@ -19,6 +19,7 @@ import {MyContext} from './types/MyContext';
 
 // import {ApolloServerPluginLandingPageGraphQLPlayground} from '@apollo/server-plugin-landing-page-graphql-playground';
 import {ApolloServerPluginLandingPageLocalDefault} from '@apollo/server/plugin/landingPage/default';
+import {LogoutResolver} from './modules/user/Logout';
 
 const ormconfig = require('../ormconfig.json');
 
@@ -43,17 +44,21 @@ declare module 'express-session' {
   const app = express();
 
   app.set('trust proxy', 1);
-  // app.set('Access-Control-Allow-Origin', 'https://studio.apollographql.com');
-  app.set('Access-Control-Allow-Credentials', true);
+  // app.set('Access-Control-Allow-Credentials', true);
 
   const {typeDefs, resolvers} = await buildTypeDefsAndResolvers({
-    resolvers: [RegisterResolver, LoginResolver, CurrentUserResolver],
+    resolvers: [
+      RegisterResolver,
+      LoginResolver,
+      CurrentUserResolver,
+      LogoutResolver,
+    ],
+    // authChecker: ({context: {req}}) => !!req.session.userId,
   });
 
   const server = new ApolloServer<MyContext>({
     typeDefs,
     resolvers,
-    // plugins: [ApolloServerPluginLandingPageGraphQLPlayground()],
     plugins: [
       ApolloServerPluginLandingPageLocalDefault({
         includeCookies: true,
@@ -104,7 +109,7 @@ declare module 'express-session' {
     }),
     json(),
     expressMiddleware(server, {
-      context: async ({req}) => ({req: req}),
+      context: async ({req, res}) => ({req: req, res: res}),
     })
   );
 
