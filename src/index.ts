@@ -1,4 +1,5 @@
 import 'reflect-metadata';
+import 'dotenv';
 
 import {ApolloServer} from '@apollo/server';
 import {expressMiddleware} from '@apollo/server/express4';
@@ -7,10 +8,26 @@ import {buildTypeDefsAndResolvers} from 'type-graphql';
 import cors from 'cors';
 import {json} from 'body-parser';
 import {DataSource} from 'typeorm';
+import session from 'express-session';
+import connectRedis from 'connect-redis';
+import {redis} from './redis';
 
+import {CurrentUserResolver} from './modules/user/CurrentUser';
+import {LoginResolver} from './modules/user/Login';
 import {RegisterResolver} from './modules/user/Register';
+import {MyContext} from './types/MyContext';
+
+// import {ApolloServerPluginLandingPageGraphQLPlayground} from '@apollo/server-plugin-landing-page-graphql-playground';
+import {ApolloServerPluginLandingPageLocalDefault} from '@apollo/server/plugin/landingPage/default';
 
 const ormconfig = require('../ormconfig.json');
+
+// Declaration merging for express-session
+declare module 'express-session' {
+  export interface SessionData {
+    userId: number;
+  }
+}
 
 (async () => {
   const AppDataSource = new DataSource(ormconfig);
@@ -25,19 +42,70 @@ const ormconfig = require('../ormconfig.json');
 
   const app = express();
 
+  app.set('trust proxy', 1);
+  // app.set('Access-Control-Allow-Origin', 'https://studio.apollographql.com');
+  app.set('Access-Control-Allow-Credentials', true);
+
   const {typeDefs, resolvers} = await buildTypeDefsAndResolvers({
-    resolvers: [RegisterResolver],
+    resolvers: [RegisterResolver, LoginResolver, CurrentUserResolver],
   });
 
-  const server = new ApolloServer({typeDefs, resolvers});
+  const server = new ApolloServer<MyContext>({
+    typeDefs,
+    resolvers,
+    // plugins: [ApolloServerPluginLandingPageGraphQLPlayground()],
+    plugins: [
+      ApolloServerPluginLandingPageLocalDefault({
+        includeCookies: true,
+      }),
+    ],
+  });
 
   await server.start();
 
+  // Connect to redis for session management
+
+  const RedisStore = connectRedis(session);
+
+  type SameSite = 'none' | 'lax';
+
+  const cookieSettings: {sameSite: SameSite; secure?: boolean} =
+    process.env.NODE_ENV === 'production'
+      ? {
+          sameSite: 'none',
+          secure: true,
+        }
+      : {
+          sameSite: 'lax',
+        };
+
+  app.use(
+    session({
+      store: new RedisStore({
+        client: redis as any,
+      }),
+      name: 'qid',
+      resave: false,
+      saveUninitialized: false,
+      secret: 'bunn10n',
+      cookie: {
+        ...cookieSettings,
+        httpOnly: true,
+        maxAge: 1000 * 60 * 60 * 2, // 2 hours
+      },
+    })
+  );
+
   app.use(
     '/graphql',
-    cors<cors.CorsRequest>(),
+    cors({
+      credentials: true,
+      origin: ['http://localhost:3031', 'https://studio.apollographql.com'],
+    }),
     json(),
-    expressMiddleware(server)
+    expressMiddleware(server, {
+      context: async ({req}) => ({req: req}),
+    })
   );
 
   app.listen(8099, () => {
