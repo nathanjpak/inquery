@@ -5,9 +5,9 @@ import {
   Column,
   BaseEntity,
   OneToMany,
-  ManyToMany,
 } from 'typeorm';
 import {Instance} from './Instance';
+import {Score} from './Score';
 import {Template} from './Template';
 
 @ObjectType()
@@ -28,15 +28,12 @@ export class User extends BaseEntity {
   @Column()
   password: string;
 
-  @Field(() => [Template])
   @OneToMany(() => Template, (template: Template) => template.owner)
   templates: Template[];
 
-  @Field(() => [Instance])
   @OneToMany(() => Instance, (instance: Instance) => instance.host)
   hostedInstances: Instance[];
 
-  @Field(() => [Instance])
-  @ManyToMany(() => Instance, (instance: Instance) => instance.participants)
-  takenInstances: Instance[];
+  @OneToMany(() => Score, (score: Score) => score.testTaker)
+  takenTests: Score[];
 }

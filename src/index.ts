@@ -20,6 +20,8 @@ import {MyContext} from './types/MyContext';
 // import {ApolloServerPluginLandingPageGraphQLPlayground} from '@apollo/server-plugin-landing-page-graphql-playground';
 import {ApolloServerPluginLandingPageLocalDefault} from '@apollo/server/plugin/landingPage/default';
 import {LogoutResolver} from './modules/user/Logout';
+import {TemplateResolver} from './modules/template/Resolver';
+import {InstanceResolver} from './modules/instance/Resolver';
 
 const ormconfig = require('../ormconfig.json');
 
@@ -52,6 +54,8 @@ declare module 'express-session' {
       LoginResolver,
       CurrentUserResolver,
       LogoutResolver,
+      TemplateResolver,
+      InstanceResolver,
     ],
     // authChecker: ({context: {req}}) => !!req.session.userId,
   });

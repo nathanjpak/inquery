@@ -4,7 +4,6 @@ import {
   Column,
   BaseEntity,
   ManyToOne,
-  JoinColumn,
   OneToMany,
 } from 'typeorm';
 import {User} from './User';
@@ -18,16 +17,19 @@ export class Template extends BaseEntity {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Field(() => User)
+  @Field()
+  @Column()
+  ownerId: number;
+
+  // @Field(() => User)
   @ManyToOne(() => User, (user: User) => user.templates)
-  @JoinColumn()
   owner: User;
 
   @Field(() => [Instance])
   @OneToMany(() => Instance, (instance: Instance) => instance.template)
   instances: Instance[];
 
-  @Field(() => [String])
-  @Column('text', {array: true, nullable: true})
-  problems: string[];
+  @Field(() => String)
+  @Column('text')
+  problems: string;
 }

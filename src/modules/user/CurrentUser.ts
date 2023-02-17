@@ -9,6 +9,8 @@ export class CurrentUserResolver {
   async currentUser(@Ctx() ctx: MyContext): Promise<User | null> {
     if (!ctx.req.session.userId) return null;
 
+    console.log(await User.findOneBy({id: ctx.req.session.userId}));
+
     return User.findOneBy({id: ctx.req.session.userId});
   }
 }
