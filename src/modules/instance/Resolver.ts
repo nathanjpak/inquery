@@ -1,4 +1,4 @@
-import {Resolver, Mutation, Arg, Ctx, Query} from 'type-graphql';
+import {Resolver, Mutation, Arg, Ctx} from 'type-graphql';
 import {Instance} from '../../entity/Instance';
 import {Template} from '../../entity/Template';
 
@@ -31,22 +31,6 @@ export class InstanceResolver {
     }).save();
 
     return instance;
-  }
-
-  @Query(() => Instance, {nullable: true})
-  async findInstance(@Arg('id') id: number): Promise<Instance | null> {
-    const instance = await Instance.findOneBy({id: id});
-
-    return instance;
-  }
-
-  @Query(() => [Instance], {nullable: true})
-  async findInstancesByTemplate(
-    @Arg('templateId') templateId: number
-  ): Promise<Instance[] | null> {
-    const instances = await Instance.findBy({templateId: templateId});
-
-    return instances;
   }
 }
 
